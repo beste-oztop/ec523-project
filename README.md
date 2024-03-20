@@ -1,21 +1,21 @@
-## Deep Reinforcement Learning (DRL) Neural Network Architectures Investigation
+# Deep Reinforcement Learning (DRL) Neural Network Architectures Investigation
 
-** Project Description ** 
+## Project Description
 
 The goal of this project is to investigate the Neural Network architectures utilized in two of the standard Deep Reinforcement Learning (DRL) algorithms. We will implement each of them and test their performances with the existing benchmark applications. We plan to go for one off-policy and one on-policy DRL algorithm and to provide theoretical and practical comparisons between them throughout the project.
 
-** Implemented Algorithms** 
+## Implemented Algorithms 
 
-1. ** Deep Q-Networks (DQN) ** 
+1. Deep Q-Networks (DQN) 
   - Implementation with Convolutional Neural Network (CNN) to support training with image input.
   -  Design choices regarding the implementation of the experience replay buffer will be explored.
 
-2. ** Proximal Policy Optimization (PPO) ** 
+2. Proximal Policy Optimization (PPO) 
   - Implementation with a fully connected architecture in the network.
   - PPO requires careful consideration and implementation tricks, as per the pseudocode available in the original paper.
 
 
-** Benchmark Applications ** 
+## Benchmark Applications 
 The benchmark applications selected for this project are:
 
 - Atari Games
@@ -28,7 +28,7 @@ The benchmark applications selected for this project are:
   - Success metrics for Mujoco environments will include average episode reward, sample efficiency, and robustness to perturbations.
 
 
-**Repository Structure**
+## Repository Structure 
 
 The project repository will have the following structure:
 
@@ -36,7 +36,7 @@ The project repository will have the following structure:
 - `models/`: Directory to store trained models.
 - `README.md`: Overview of the project, instructions for running the code, and any additional information for users.
 
-**Running the Code**
+## Running the Code 
 
 To run the implemented algorithms:
 
@@ -46,7 +46,7 @@ To run the implemented algorithms:
 4. Follow the instructions provided in the script to configure hyperparameters and choose the benchmark environment (Atari or Mujoco).
 5. After training, evaluate the trained models using the provided evaluation script or directly within the training script.
 
-**Contributors**
+## Contributors ##
 
 - Aida Afshar Mohammadian
 - Beste Oztop

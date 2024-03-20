@@ -1,4 +1,4 @@
-# Deep Reinforcement Learning (DRL) Neural Network Architectures Investigation
+# A Comparative Study of Deep Q-Networks and Proximal Policy Optimization in Reinforcement Learning 
 
 ## Project Description
 

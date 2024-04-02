@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 import os
-import gymnasium as gym
 from torch.utils.tensorboard import SummaryWriter
 import random
 import time
 import numpy as np
 import torch
 import tyro
+import gymnasium as gym
 
 from algorithms.DQN import DQN
 

@@ -1,4 +1,5 @@
 import random
+import torch
 
 class ReplayBuffer():
 
@@ -26,5 +27,14 @@ class ReplayBuffer():
     def sample(self, batch_size):
         batch = random.sample(self.buffer, batch_size)
         obs_batch, next_obs_batch, action_batch, reward_batch, termination_batch, info_batch = map(list, zip(*batch))
+
+        # convert the data stored in buffer to tensor
+        obs_batch = torch.tensor(obs_batch, device=self.device)
+        next_obs_batch = torch.tensor(next_obs_batch, device=self.device)
+        action_batch = torch.tensor(action_batch, device=self.device)
+        reward_batch = torch.tensor(reward_batch, device=self.device)
+        termination_batch = torch.tensor(termination_batch, device=self.device)
+        info_batch = torch.tensor(info_batch, device=self.device)
+
         return obs_batch, next_obs_batch, action_batch, reward_batch, termination_batch, info_batch
 

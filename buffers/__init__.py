@@ -12,6 +12,8 @@ class ReplayBuffer():
         self.single_action_space = single_action_space
         self.device = device
         self.handle_timeout_termination = False
+        self.buffer = []
+        self.idx = 0
 
     def add(self, obs, real_next_obs, actions, rewards, terminations, infos):
         data = (obs, real_next_obs, actions, rewards, terminations, infos)

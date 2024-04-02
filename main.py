@@ -14,7 +14,9 @@ from algorithms.DQN import DQN
 
 @dataclass
 class Args:
-    alg_name: str = "alg_name"
+    available_algs = ["DQN", "PPO"]
+    """list of all available RL algorithms"""
+    alg_name: str = "PPO"
     """ name of the algorithm"""
     exp_name: str = os.path.basename(__file__)[: -len(".py")]
     """the name of this experiment"""
@@ -26,7 +28,7 @@ class Args:
     """if toggled, cuda will be enabled by default"""
     track: bool = False
     """if toggled, this experiment will be tracked with Weights and Biases"""
-    wandb_project_name: str = "cleanRL"
+    wandb_project_name: str = f"ec523"
     """the wandb's project name"""
     wandb_entity: str = None
     """the entity (team) of wandb's project"""
@@ -90,7 +92,8 @@ if __name__ == '__main__':
 
 
     args = tyro.cli(Args)
-    run_name = f"{args.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
+    run_name = f"{args.alg_name}_{args.env_id}_{args.seed}_{int(time.time())}"
+
     if args.track:
         import wandb
         wandb.init(

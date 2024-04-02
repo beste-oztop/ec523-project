@@ -68,9 +68,11 @@ class DQN():
 
     def optimize_QNetwork(self, data, global_step, args):
         with torch.no_grad():
-            target_max, _ = self.target_network(data.next_observations).max(dim=1)
-            td_target = data.rewards.flatten() + args.gamma * target_max * (1 - data.dones.flatten())
-        old_val = self.q_network(data.observations).gather(1, data.actions).squeeze()
+            # print(data)
+            obs_batch, next_obs_batch, action_batch, reward_batch, termination_batch, info_batch = data
+            target_max, _ = self.target_network(next_obs_batch).max(dim=1)
+            td_target = reward_batch.flatten() + args.gamma * target_max * (1 - termination_batch.flatten())
+        old_val = self.q_network(obs_batch).gather(1, action_batch).squeeze()
         loss = F.mse_loss(td_target, old_val)
 
         # log losses and q_values to the writer

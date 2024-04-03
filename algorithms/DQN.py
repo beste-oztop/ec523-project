@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from buffers import ReplayBuffer
+# from stable_baselines3.common.buffers import ReplayBuffer
 
 from networks import QNetwork
 
@@ -36,6 +37,7 @@ class DQN():
         self.envs = envs
 
         self.writer = writer
+        self.start_time = time.time()
 
         self.replay_buffer = ReplayBuffer(
             args.buffer_size,
@@ -69,9 +71,16 @@ class DQN():
     def optimize_QNetwork(self, data, global_step, args):
         with torch.no_grad():
             # print(data)
-            obs_batch, next_obs_batch, action_batch, reward_batch, termination_batch, info_batch = data
+            obs_batch, next_obs_batch, action_batch, reward_batch, termination_batch= data
+            action_batch = action_batch.to(torch.int64)
             target_max, _ = self.target_network(next_obs_batch).max(dim=1)
-            td_target = reward_batch.flatten() + args.gamma * target_max * (1 - termination_batch.flatten())
+
+            reward_flat = reward_batch.flatten()
+            termination_flat = termination_batch.flatten()
+            target_max_resized = target_max.repeat_interleave(reward_flat.size(0) // target_max.size(0))
+        
+            td_target = reward_flat + args.gamma * target_max_resized * torch.logical_not(termination_flat)
+
         old_val = self.q_network(obs_batch).gather(1, action_batch).squeeze()
         loss = F.mse_loss(td_target, old_val)
 

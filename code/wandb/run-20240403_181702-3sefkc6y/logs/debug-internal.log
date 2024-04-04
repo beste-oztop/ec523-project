@@ -1,0 +1,29 @@
+2024-04-03 18:17:02,055 INFO    StreamThr :51266 [internal.py:wandb_internal():86] W&B internal server running at pid: 51266, started at: 2024-04-03 18:17:02.054965
+2024-04-03 18:17:02,057 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: status
+2024-04-03 18:17:02,061 INFO    WriterThread:51266 [datastore.py:open_for_write():87] open: /Users/aida/PycharmProjects/ec523-project/ec523-project/code/wandb/run-20240403_181702-3sefkc6y/run-3sefkc6y.wandb
+2024-04-03 18:17:02,061 DEBUG   SenderThread:51266 [sender.py:send():379] send: header
+2024-04-03 18:17:02,092 DEBUG   SenderThread:51266 [sender.py:send():379] send: run
+2024-04-03 18:17:07,109 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:17:12,130 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:17:17,150 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:17:22,173 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:17:27,192 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:17:32,215 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:17:37,232 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:17:42,254 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:17:47,265 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:17:52,282 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:17:57,303 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:18:02,326 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:18:07,342 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:18:12,357 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:18:17,373 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:18:22,392 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:18:27,412 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-03 18:18:32,427 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: cancel
+2024-04-03 18:18:32,428 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: cancel
+2024-04-03 18:18:32,537 DEBUG   HandlerThread:51266 [handler.py:handle_request():146] handle_request: shutdown
+2024-04-03 18:18:32,538 INFO    HandlerThread:51266 [handler.py:finish():866] shutting down handler
+2024-04-03 18:18:33,430 INFO    WriterThread:51266 [datastore.py:close():296] close: /Users/aida/PycharmProjects/ec523-project/ec523-project/code/wandb/run-20240403_181702-3sefkc6y/run-3sefkc6y.wandb
+2024-04-03 18:19:03,373 DEBUG   SenderThread:51266 [sender.py:send():388] Record cancelled: run
+2024-04-03 18:19:03,373 INFO    SenderThread:51266 [sender.py:finish():1546] shutting down sender

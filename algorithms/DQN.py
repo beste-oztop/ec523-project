@@ -68,27 +68,29 @@ class DQN():
             if global_step % args.target_network_frequency == 0:
                 self.update_target_network(args)
 
+
     def optimize_QNetwork(self, data, global_step, args):
         with torch.no_grad():
             # print(data)
-            obs_batch, next_obs_batch, action_batch, reward_batch, termination_batch= data
+            obs_batch, next_obs_batch, action_batch, reward_batch, termination_batch = data
             action_batch = action_batch.to(torch.int64)
             target_max, _ = self.target_network(next_obs_batch).max(dim=1)
 
             reward_flat = reward_batch.flatten()
             termination_flat = termination_batch.flatten()
             target_max_resized = target_max.repeat_interleave(reward_flat.size(0) // target_max.size(0))
-        
+
             td_target = reward_flat + args.gamma * target_max_resized * torch.logical_not(termination_flat)
 
         old_val = self.q_network(obs_batch).gather(1, action_batch).squeeze()
         loss = F.mse_loss(td_target, old_val)
 
+
+
         # log losses and q_values to the writer
         if global_step % 100 == 0:
-            self.writer.add_scalar("losses/td_loss", loss, global_step)
-            self.writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
-            self.writer.add_scalar("charts/SPS", int(global_step / (time.time() - self.start_time)), global_step)
+            self.writer.add_scalar("charts/td_loss", loss, global_step)
+            self.writer.add_scalar("charts/q_values", old_val.mean().item(), global_step)
 
         self.optimizer.zero_grad()
         loss.backward()
@@ -124,5 +126,6 @@ class DQN():
                     real_next_obs[idx] = infos["final_observation"][idx]
 
             self.replay_buffer.add(obs, real_next_obs, actions, rewards, terminations, infos)
+            obs = next_obs
             self.train_networks(global_step, args)
 

@@ -1,0 +1,61 @@
+diff --git a/install_libs.sh b/install_libs.sh
+index b0973fb..2219880 100755
+--- a/install_libs.sh
++++ b/install_libs.sh
+@@ -6,6 +6,7 @@ pip install dataclasses
+ pip install wandb
+ pip install tensorflow
+ pip install stable_baselines3
++pip install moviepy
+ 
+ #special attention for box2d
+ #install homebrew if not already
+diff --git a/main.py b/main.py
+index 235fd77..06e7faf 100644
+--- a/main.py
++++ b/main.py
+@@ -16,7 +16,7 @@ from algorithms.DQN import DQN
+ class Args:
+     available_algs = ["DQN", "PPO"]
+     """list of all available RL algorithms"""
+-    alg_name: str = "PPO"
++    alg_name: str = "DQN"
+     """ name of the algorithm"""
+     exp_name: str = os.path.basename(__file__)[: -len(".py")]
+     """the name of this experiment"""
+@@ -26,13 +26,13 @@ class Args:
+     """if toggled, `torch.backends.cudnn.deterministic=False`"""
+     cuda: bool = True
+     """if toggled, cuda will be enabled by default"""
+-    track: bool = False
++    track: bool = True
+     """if toggled, this experiment will be tracked with Weights and Biases"""
+     wandb_project_name: str = f"ec523"
+     """the wandb's project name"""
+     wandb_entity: str = None
+     """the entity (team) of wandb's project"""
+-    capture_video: bool = False
++    capture_video: bool = True
+     """whether to capture videos of the agent performances (check out `videos` folder)"""
+     save_model: bool = False
+     """whether to save model into the `runs/{run_name}` folder"""
+diff --git a/runs/DQN_CartPole-v1_1_1712015911/events.out.tfevents.1712015911.Aidas-MacBook.40534.0 b/runs/DQN_CartPole-v1_1_1712015911/events.out.tfevents.1712015911.Aidas-MacBook.40534.0
+deleted file mode 100644
+index d0965f5..0000000
+Binary files a/runs/DQN_CartPole-v1_1_1712015911/events.out.tfevents.1712015911.Aidas-MacBook.40534.0 and /dev/null differ
+diff --git a/runs/DQN_CartPole-v1_1_1712016020/events.out.tfevents.1712016020.Aidas-MacBook.40568.0 b/runs/DQN_CartPole-v1_1_1712016020/events.out.tfevents.1712016020.Aidas-MacBook.40568.0
+deleted file mode 100644
+index b1f4bb8..0000000
+Binary files a/runs/DQN_CartPole-v1_1_1712016020/events.out.tfevents.1712016020.Aidas-MacBook.40568.0 and /dev/null differ
+diff --git a/runs/DQN_CartPole-v1_1_1712016313/events.out.tfevents.1712016313.Aidas-MacBook.40657.0 b/runs/DQN_CartPole-v1_1_1712016313/events.out.tfevents.1712016313.Aidas-MacBook.40657.0
+deleted file mode 100644
+index 059cea3..0000000
+Binary files a/runs/DQN_CartPole-v1_1_1712016313/events.out.tfevents.1712016313.Aidas-MacBook.40657.0 and /dev/null differ
+diff --git a/runs/DQN_CartPole-v1_1_1712016512/events.out.tfevents.1712016512.Aidas-MacBook.40708.0 b/runs/DQN_CartPole-v1_1_1712016512/events.out.tfevents.1712016512.Aidas-MacBook.40708.0
+deleted file mode 100644
+index c2ad9c4..0000000
+Binary files a/runs/DQN_CartPole-v1_1_1712016512/events.out.tfevents.1712016512.Aidas-MacBook.40708.0 and /dev/null differ
+diff --git a/runs/DQN_CartPole-v1_1_1712016633/events.out.tfevents.1712016633.Aidas-MacBook.40733.0 b/runs/DQN_CartPole-v1_1_1712016633/events.out.tfevents.1712016633.Aidas-MacBook.40733.0
+deleted file mode 100644
+index f7cb0fe..0000000
+Binary files a/runs/DQN_CartPole-v1_1_1712016633/events.out.tfevents.1712016633.Aidas-MacBook.40733.0 and /dev/null differ

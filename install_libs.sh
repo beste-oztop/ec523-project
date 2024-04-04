@@ -6,6 +6,7 @@ pip install dataclasses
 pip install wandb
 pip install tensorflow
 pip install stable_baselines3
+pip install moviepy
 
 #special attention for box2d
 #install homebrew if not already

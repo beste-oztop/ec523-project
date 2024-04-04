@@ -1,5 +1,0 @@
-[default]
-entity = aafshar
-project = ec523
-base_url = https://api.wandb.ai
-

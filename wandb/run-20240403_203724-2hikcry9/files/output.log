@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 115, in <module>
+    envs = gym.vector.SyncVectorEnv(
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/vector/sync_vector_env.py", line 53, in __init__
+    self.envs = [env_fn() for env_fn in env_fns]
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/vector/sync_vector_env.py", line 53, in <listcomp>
+    self.envs = [env_fn() for env_fn in env_fns]
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 77, in thunk
+    env = gym.make(env_id, render_mode="rgb_array")
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/envs/registration.py", line 741, in make
+    env_spec = _find_spec(id)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/envs/registration.py", line 527, in _find_spec
+    _check_version_exists(ns, name, version)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/envs/registration.py", line 393, in _check_version_exists
+    _check_name_exists(ns, name)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/envs/registration.py", line 370, in _check_name_exists
+    raise error.NameNotFound(
+gymnasium.error.NameNotFound: Environment `MiniGrid-Empty-5x5` doesn't exist.

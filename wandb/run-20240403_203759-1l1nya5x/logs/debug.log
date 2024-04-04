@@ -1,0 +1,29 @@
+2024-04-03 20:37:59,812 INFO    MainThread:54087 [wandb_setup.py:_flush():76] Current SDK version is 0.16.6
+2024-04-03 20:37:59,812 INFO    MainThread:54087 [wandb_setup.py:_flush():76] Configure stats pid to 54087
+2024-04-03 20:37:59,812 INFO    MainThread:54087 [wandb_setup.py:_flush():76] Loading settings from /Users/aida/.config/wandb/settings
+2024-04-03 20:37:59,812 INFO    MainThread:54087 [wandb_setup.py:_flush():76] Loading settings from /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/settings
+2024-04-03 20:37:59,813 INFO    MainThread:54087 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2024-04-03 20:37:59,813 INFO    MainThread:54087 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2024-04-03 20:37:59,813 INFO    MainThread:54087 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'main.py', 'program_abspath': '/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py', 'program': '/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py'}
+2024-04-03 20:37:59,813 INFO    MainThread:54087 [wandb_setup.py:_flush():76] Applying login settings: {}
+2024-04-03 20:37:59,813 INFO    MainThread:54087 [wandb_init.py:_log_setup():521] Logging user logs to /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240403_203759-1l1nya5x/logs/debug.log
+2024-04-03 20:37:59,813 INFO    MainThread:54087 [wandb_init.py:_log_setup():522] Logging internal logs to /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240403_203759-1l1nya5x/logs/debug-internal.log
+2024-04-03 20:37:59,813 INFO    MainThread:54087 [wandb_init.py:init():561] calling init triggers
+2024-04-03 20:37:59,813 INFO    MainThread:54087 [wandb_init.py:init():568] wandb.init called with sweep_config: {}
+config: {'alg_name': 'DQN', 'exp_name': 'main', 'seed': 1, 'torch_deterministic': True, 'cuda': True, 'track': True, 'wandb_project_name': 'ec523', 'wandb_entity': None, 'capture_video': True, 'save_model': False, 'upload_model': False, 'env_id': 'MiniGrid-Empty-5x5-v0', 'total_timesteps': 500000, 'learning_rate': 0.00025, 'num_envs': 1, 'buffer_size': 10000, 'gamma': 0.99, 'tau': 1.0, 'target_network_frequency': 500, 'batch_size': 128, 'start_e': 1, 'end_e': 0.05, 'exploration_fraction': 0.5, 'learning_starts': 10000, 'train_frequency': 10}
+2024-04-03 20:37:59,813 INFO    MainThread:54087 [wandb_init.py:init():611] starting backend
+2024-04-03 20:37:59,813 INFO    MainThread:54087 [wandb_init.py:init():615] setting up manager
+2024-04-03 20:37:59,814 INFO    MainThread:54087 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=spawn,fork,forkserver, using: spawn
+2024-04-03 20:37:59,816 INFO    MainThread:54087 [wandb_init.py:init():623] backend started and connected
+2024-04-03 20:37:59,821 INFO    MainThread:54087 [wandb_init.py:init():715] updated telemetry
+2024-04-03 20:37:59,843 INFO    MainThread:54087 [wandb_init.py:init():748] communicating run to backend with 90.0 second timeout
+2024-04-03 20:38:00,290 INFO    MainThread:54087 [wandb_run.py:_on_init():2357] communicating current version
+2024-04-03 20:38:00,455 INFO    MainThread:54087 [wandb_run.py:_on_init():2366] got version response 
+2024-04-03 20:38:00,455 INFO    MainThread:54087 [wandb_init.py:init():799] starting run threads in backend
+2024-04-03 20:38:00,703 INFO    MainThread:54087 [wandb_run.py:_console_start():2335] atexit reg
+2024-04-03 20:38:00,704 INFO    MainThread:54087 [wandb_run.py:_redirect():2190] redirect: wrap_raw
+2024-04-03 20:38:00,704 INFO    MainThread:54087 [wandb_run.py:_redirect():2255] Wrapping output streams.
+2024-04-03 20:38:00,704 INFO    MainThread:54087 [wandb_run.py:_redirect():2280] Redirects installed.
+2024-04-03 20:38:00,704 INFO    MainThread:54087 [wandb_init.py:init():842] run started, returning control to user process
+2024-04-03 20:38:00,705 INFO    MainThread:54087 [wandb_run.py:_tensorboard_callback():1505] tensorboard callback: runs/DQN_MiniGrid-Empty-5x5-v0_1_1712191078, True
+2024-04-03 20:38:13,217 WARNING MsgRouterThr:54087 [router.py:message_loop():77] message_loop has been closed

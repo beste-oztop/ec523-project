@@ -1,0 +1,13 @@
+diff --git a/main.py b/main.py
+index 1d1b163..a57a1b7 100644
+--- a/main.py
++++ b/main.py
+@@ -41,7 +41,7 @@ class Args:
+ 
+ 
+     # Algorithm specific arguments
+-    env_id: str = "MountainCar-v0"
++    env_id: str = "MiniGrid-Empty-5x5-v0"
+     """the id of the environment"""
+     total_timesteps: int = 500000
+     """total timesteps of the experiments"""

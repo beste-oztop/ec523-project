@@ -41,7 +41,7 @@ class Args:
 
 
     # Algorithm specific arguments
-    env_id: str = "MiniGrid-Empty-5x5-v0"
+    env_id: str = "LunarLander-v2"
     """the id of the environment"""
     total_timesteps: int = 500000
     """total timesteps of the experiments"""

@@ -89,8 +89,8 @@ class DQN():
 
         # log losses and q_values to the writer
         if global_step % 100 == 0:
-            self.writer.add_scalar("charts/td_loss", loss, global_step)
-            self.writer.add_scalar("charts/q_values", old_val.mean().item(), global_step)
+            self.writer.add_scalar("charts/loss", loss, global_step)
+            self.writer.add_scalar("charts/Q_values", old_val.mean().item(), global_step)
 
         self.optimizer.zero_grad()
         loss.backward()

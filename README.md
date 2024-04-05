@@ -60,7 +60,9 @@ To run the implemented algorithms:
 
 ## Results ##
 The wandb report showing the results of our experimenrs can be found in the following links:
+
   -- [Acrobot](https://api.wandb.ai/links/aafshar/c0ylarwc)
+  
   -- [Cartpole](https://api.wandb.ai/links/aafshar/dgq6izv8)
   
 ## Contributors ##

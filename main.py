@@ -14,18 +14,24 @@ from algorithms.DQN import DQN
 
 @dataclass
 class Args:
+    exp_name: str = os.path.basename(__file__)[: -len(".py")]
+    """the name of this experiment"""
     available_algs = ["DQN", "PPO"]
     """list of all available RL algorithms"""
     alg_name: str = "DQN"
     """ name of the algorithm"""
-    exp_name: str = os.path.basename(__file__)[: -len(".py")]
-    """the name of this experiment"""
+    available_network_modes = ["default", "deeper", "wider", "mini"]
+    """list of all available network mode"""
+    network_mode = "mini"
+    """the active network mode"""
+
     seed: int = 1
     """seed of the experiment"""
     torch_deterministic: bool = True
     """if toggled, `torch.backends.cudnn.deterministic=False`"""
     cuda: bool = True
     """if toggled, cuda will be enabled by default"""
+
     track: bool = True
     """if toggled, this experiment will be tracked with Weights and Biases"""
     wandb_project_name: str = f"ec523"
@@ -39,9 +45,8 @@ class Args:
     upload_model: bool = False
     """whether to upload the saved model to huggingface"""
 
-
     # Algorithm specific arguments
-    env_id: str = "MiniGrid-Empty-5x5-v0"
+    env_id: str = "CartPole-v1"
     """the id of the environment"""
     total_timesteps: int = 500000
     """total timesteps of the experiments"""
@@ -91,7 +96,7 @@ if __name__ == '__main__':
 
 
     args = tyro.cli(Args)
-    run_name = f"{args.alg_name}_{args.env_id}_{args.seed}_{int(time.time())}"
+    run_name = f"{args.alg_name}_{args.env_id}_{args.network_mode}_network_{args.seed}_{int(time.time())}"
 
     if args.track:
         import wandb

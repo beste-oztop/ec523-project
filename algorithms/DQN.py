@@ -10,8 +10,7 @@ import torch.optim as optim
 from buffers import ReplayBuffer
 # from stable_baselines3.common.buffers import ReplayBuffer
 
-from networks import QNetwork
-
+from networks import QNetwork, WiderQNetwork, DeeperQNetwork, MiniQNetwork
 
 
 def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
@@ -30,10 +29,24 @@ class DQN():
         torch.backends.cudnn.deterministic = args.torch_deterministic
 
         self.device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
-        self.q_network = QNetwork(envs).to(self.device)
+        self.q_network = None
+        self.target_network = None
+        if args.network_mode == "default":
+            self.q_network = QNetwork(envs).to(self.device)
+            self.target_network = QNetwork(envs).to(self.device)
+        elif args.network_mode == "deeper":
+            self.q_network = DeeperQNetwork(envs).to(self.device)
+            self.target_network = DeeperQNetwork(envs).to(self.device)
+        elif args.network_mode == "wider":
+            self.q_network = WiderQNetwork(envs).to(self.device)
+            self.target_network = WiderQNetwork(envs).to(self.device)
+        elif args.network_mode == "mini":
+            self.q_network = MiniQNetwork(envs).to(self.device)
+            self.target_network = MiniQNetwork(envs).to(self.device)
+
+
         self.optimizer = optim.Adam(self.q_network.parameters(), lr=args.learning_rate)
-        self.target_network = QNetwork(envs).to(self.device)
-        self.target_network.load_state_dict(self.q_network.state_dict())
+        self.target_network.load_state_dict(self.q_network.state_dict(), strict=False)
         self.envs = envs
 
         self.writer = writer

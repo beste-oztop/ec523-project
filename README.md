@@ -18,6 +18,9 @@ The goal of this project is to investigate the Neural Network architectures util
 ## Benchmark Applications 
 The benchmark applications selected for this project are:
 
+-Classic Control Environments
+  - The classic control environments are classic tasks that can be solved by simpler methods.
+  - The simplicity helps us to compare and analyze various architectures with less resource and time.
 - Atari Games
   - The Atari environment provides a suite of classic Atari 2600 games as benchmark environments for reinforcement learning.
   - These games provide diverse challenges and require agents to learn complex strategies from pixel inputs.
@@ -45,34 +48,22 @@ To run the implemented algorithms:
 1. Clone the project repository to your local machine.
 2. Make sure you created a virtual environment with the necessary `python` libraries; namely, `gymnasium`, `Box2D` (with potential system-level dependencies), `torch`, `tyro`, `tensorboard` and `wandb`. One can run `install_libs.sh` in the virtual environment to install these libraries easily.
 3. Run the `main.py` with the command line arguments of your choice. Explanations and the default versions are as follows:
-  --alg_name: Name of the RL algorithm to use (default is "PPO").
-  --exp_name: Name of the experiment (default is the name of the Python file).
-  --seed: Seed of the experiment (default is 1).
-  --torch_deterministic: Toggle for deterministic PyTorch behavior (default is True).
-  --cuda: Toggle for enabling CUDA (default is True).
+  --alg_name: Name of the RL algorithm to use (default is "DQN").
+  --network_mode: The active architecture for deep network used in the algorithm
   --track: Toggle for tracking the experiment with Weights and Biases (default is False).
   --wandb_project_name: Name of the Weights and Biases project (default is "ec523").
-  --wandb_entity: Entity (team) of the Weights and Biases project (default is None).
   --capture_video: Toggle for capturing videos of agent performances (default is False).
   --save_model: Toggle for saving the model into the runs/{run_name} folder (default is False).
-  --upload_model: Toggle for uploading the saved model to Hugging Face Hub (default is False).
-  --hf_entity: User or org name of the model repository from the Hugging Face Hub (default is empty string).
   --env_id: ID of the environment (default is "CartPole-v1").
   --total_timesteps: Total timesteps of the experiment (default is 500000).
   --learning_rate: The learning rate of the optimizer (default is 2.5e-4).
-  --num_envs: Number of parallel game environments (default is 1).
-  --buffer_size: Replay memory buffer size (default is 10000).
-  --gamma: Discount factor gamma (default is 0.99).
-  --tau: Target network update rate (default is 1.0).
-  --target_network_frequency: Timesteps it takes to update the target network (default is 500).
-  --batch_size: The batch size of the sample from the replay memory (default is 128).
-  --start_e: Starting epsilon for exploration (default is 1).
-  --end_e: Ending epsilon for exploration (default is 0.05).
-  --exploration_fraction: Fraction of total timesteps it takes from start-e to go end-e (default is 0.5).
-  --learning_starts: Timestep to start learning (default is 10000).
-  --train_frequency: Frequency of training (default is 10).
 
+## Results ##
+The wandb report showing the results of our experimenrs can be found in the following links:
+  -- [Acrobot](https://api.wandb.ai/links/aafshar/c0ylarwc)
+  -- [Cartpole](https://api.wandb.ai/links/aafshar/dgq6izv8)
+  
 ## Contributors ##
 
-- Aida Afshar Mohammadian
+- Aida Afshar 
 - Beste Oztop

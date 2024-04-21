@@ -9,6 +9,7 @@ import tyro
 import gymnasium as gym
 
 from algorithms.DQN import DQN
+from algorithms.PPO import PPO
 
 
 
@@ -123,6 +124,10 @@ if __name__ == '__main__':
 
     if args.alg_name == "DQN":
         dqn_agent = DQN(envs, writer, args)
+        dqn_agent.execute(args)
+
+    elif args.alg_name == "PPO":
+        dqn_agent = PPO(envs, writer, args)
         dqn_agent.execute(args)
 
     else:

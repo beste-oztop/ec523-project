@@ -1,0 +1,10 @@
+
+num_iterations: 488
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 191, in <module>
+    ppo_agent.execute(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 166, in execute
+    obs, actions, logprobs, rewards, dones, values, next_obs, next_done, next_value = self.environment_interaction(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 72, in environment_interaction
+    next_value = self.get_value(next_obs).reshape(1, -1)
+AttributeError: 'PPO' object has no attribute 'get_value'

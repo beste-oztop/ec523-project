@@ -1,0 +1,266 @@
+2024-04-24 11:05:53,211 INFO    StreamThr :12611 [internal.py:wandb_internal():86] W&B internal server running at pid: 12611, started at: 2024-04-24 11:05:53.210696
+2024-04-24 11:05:53,213 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: status
+2024-04-24 11:05:53,218 INFO    WriterThread:12611 [datastore.py:open_for_write():87] open: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/run-pyxx6gcl.wandb
+2024-04-24 11:05:53,218 DEBUG   SenderThread:12611 [sender.py:send():379] send: header
+2024-04-24 11:05:53,239 DEBUG   SenderThread:12611 [sender.py:send():379] send: run
+2024-04-24 11:05:53,648 INFO    SenderThread:12611 [dir_watcher.py:__init__():211] watching files in: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files
+2024-04-24 11:05:53,648 INFO    SenderThread:12611 [sender.py:_start_run_threads():1124] run started: pyxx6gcl with start time 1713971153.211262
+2024-04-24 11:05:53,664 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: check_version
+2024-04-24 11:05:53,665 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: check_version
+2024-04-24 11:05:53,744 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: run_start
+2024-04-24 11:05:53,752 DEBUG   HandlerThread:12611 [system_info.py:__init__():26] System info init
+2024-04-24 11:05:53,752 DEBUG   HandlerThread:12611 [system_info.py:__init__():41] System info init done
+2024-04-24 11:05:53,752 INFO    HandlerThread:12611 [system_monitor.py:start():194] Starting system monitor
+2024-04-24 11:05:53,752 INFO    SystemMonitor:12611 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-04-24 11:05:53,753 INFO    HandlerThread:12611 [system_monitor.py:probe():214] Collecting system info
+2024-04-24 11:05:53,753 INFO    SystemMonitor:12611 [interfaces.py:start():190] Started cpu monitoring
+2024-04-24 11:05:53,754 DEBUG   HandlerThread:12611 [system_info.py:probe():150] Probing system
+2024-04-24 11:05:53,754 INFO    SystemMonitor:12611 [interfaces.py:start():190] Started disk monitoring
+2024-04-24 11:05:53,756 INFO    SystemMonitor:12611 [interfaces.py:start():190] Started memory monitoring
+2024-04-24 11:05:53,757 INFO    SystemMonitor:12611 [interfaces.py:start():190] Started network monitoring
+2024-04-24 11:05:53,763 DEBUG   HandlerThread:12611 [system_info.py:_probe_git():135] Probing git
+2024-04-24 11:05:53,792 DEBUG   HandlerThread:12611 [system_info.py:_probe_git():143] Probing git done
+2024-04-24 11:05:53,793 DEBUG   HandlerThread:12611 [system_info.py:probe():198] Probing system done
+2024-04-24 11:05:53,793 DEBUG   HandlerThread:12611 [system_monitor.py:probe():223] {'os': 'macOS-10.15.7-x86_64-i386-64bit', 'python': '3.9.7', 'heartbeatAt': '2024-04-24T15:05:53.755485', 'startedAt': '2024-04-24T15:05:53.199663', 'docker': None, 'cuda': None, 'args': (), 'state': 'running', 'program': '/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py', 'codePathLocal': 'main.py', 'codePath': 'main.py', 'git': {'remote': 'https://github.com/beste-oztop/ec523-project.git', 'commit': 'e39bc4a412b4237062201fe21d6638a28afa8b3c'}, 'email': 'afsharaidam@gmail.com', 'root': '/Users/aida/PycharmProjects/ec523-project/ec523-project', 'host': 'Aidas-MacBook', 'username': 'aida', 'executable': '/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/bin/python', 'cpu_count': 4, 'cpu_count_logical': 8, 'cpu_freq': {'current': 2000, 'min': 2000, 'max': 2000}, 'cpu_freq_per_core': [{'current': 2000, 'min': 2000, 'max': 2000}], 'disk': {'/': {'total': 465.62699127197266, 'used': 10.460811614990234}}, 'memory': {'total': 16.0}}
+2024-04-24 11:05:53,793 INFO    HandlerThread:12611 [system_monitor.py:probe():224] Finished collecting system info
+2024-04-24 11:05:53,793 INFO    HandlerThread:12611 [system_monitor.py:probe():227] Publishing system info
+2024-04-24 11:05:53,793 DEBUG   HandlerThread:12611 [system_info.py:_save_code():44] Saving code
+2024-04-24 11:05:53,807 DEBUG   HandlerThread:12611 [system_info.py:_save_code():65] Saving code done
+2024-04-24 11:05:53,807 DEBUG   HandlerThread:12611 [system_info.py:_save_patches():82] Saving git patches
+2024-04-24 11:05:53,903 DEBUG   HandlerThread:12611 [system_info.py:_save_patches():124] Saving git patches done
+2024-04-24 11:05:53,904 INFO    HandlerThread:12611 [system_monitor.py:probe():229] Finished publishing system info
+2024-04-24 11:05:53,911 DEBUG   SenderThread:12611 [sender.py:send():379] send: files
+2024-04-24 11:05:53,911 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file wandb-metadata.json with policy now
+2024-04-24 11:05:53,912 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file code/main.py with policy now
+2024-04-24 11:05:53,913 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file diff.patch with policy now
+2024-04-24 11:05:53,997 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: python_packages
+2024-04-24 11:05:53,998 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: python_packages
+2024-04-24 11:05:53,999 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-24 11:05:54,000 DEBUG   SenderThread:12611 [sender.py:send():379] send: telemetry
+2024-04-24 11:05:54,000 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: stop_status
+2024-04-24 11:05:54,001 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-24 11:05:54,002 INFO    HandlerThread:12611 [handler.py:handle_tbrecord():767] handling tbrecord: tbrecord {
+  log_dir: "runs/PPO_Pendulum-v1_default_network_1_1713971151"
+  save: true
+}
+control {
+  relay_id: "cfc118c63bfe48a5bcb32cbbcd93a652"
+}
+_info {
+  stream_id: "pyxx6gcl"
+}
+
+2024-04-24 11:05:54,003 DEBUG   HandlerThread:12611 [config_util.py:dict_from_config_file():70] no default config file found in config-defaults.yaml
+2024-04-24 11:05:54,224 INFO    wandb-upload_0:12611 [upload_job.py:push():131] Uploaded file /var/folders/6m/1dqyvm_96_3_0tr2h0nfsrl40000gn/T/tmpkghjtyovwandb/3odohz0j-wandb-metadata.json
+2024-04-24 11:05:54,322 INFO    wandb-upload_1:12611 [upload_job.py:push():131] Uploaded file /var/folders/6m/1dqyvm_96_3_0tr2h0nfsrl40000gn/T/tmpkghjtyovwandb/h2ioziak-code/main.py
+2024-04-24 11:05:54,344 INFO    wandb-upload_2:12611 [upload_job.py:push():131] Uploaded file /var/folders/6m/1dqyvm_96_3_0tr2h0nfsrl40000gn/T/tmpkghjtyovwandb/ov673e4x-diff.patch
+2024-04-24 11:05:54,409 DEBUG   SenderThread:12611 [sender.py:send():379] send: tbrecord
+2024-04-24 11:05:54,409 DEBUG   SenderThread:12611 [sender.py:send():379] send: files
+2024-04-24 11:05:54,409 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file events.out.tfevents.1713971154.Aidas-MacBook.12600.0 with policy live
+2024-04-24 11:05:54,653 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
+2024-04-24 11:05:54,653 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/requirements.txt
+2024-04-24 11:05:54,653 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/diff.patch
+2024-04-24 11:05:54,653 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/code/main.py
+2024-04-24 11:05:54,653 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/wandb-metadata.json
+2024-04-24 11:05:54,654 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/code
+2024-04-24 11:05:54,912 INFO    wandb-upload_0:12611 [upload_job.py:push():131] Uploaded file /var/folders/6m/1dqyvm_96_3_0tr2h0nfsrl40000gn/T/tmpkghjtyovwandb/nc61mubj-events.out.tfevents.1713971154.Aidas-MacBook.12600.0
+2024-04-24 11:05:55,655 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/output.log
+2024-04-24 11:05:57,336 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: partial_history
+2024-04-24 11:05:57,337 DEBUG   SenderThread:12611 [sender.py:send():379] send: files
+2024-04-24 11:05:57,337 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file media/videos/videos_0_11d649a23c1d21e243ab.mp4 with policy now
+2024-04-24 11:05:57,338 DEBUG   SenderThread:12611 [sender.py:send():379] send: history
+2024-04-24 11:05:57,339 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: summary_record
+2024-04-24 11:05:57,339 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-04-24 11:05:57,580 INFO    wandb-upload_2:12611 [upload_job.py:push():131] Uploaded file /var/folders/6m/1dqyvm_96_3_0tr2h0nfsrl40000gn/T/tmpkghjtyovwandb/b1qusdvz-media/videos/videos_0_11d649a23c1d21e243ab.mp4
+2024-04-24 11:05:57,663 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/output.log
+2024-04-24 11:05:57,664 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/wandb-summary.json
+2024-04-24 11:05:57,664 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/media/videos/videos_0_11d649a23c1d21e243ab.mp4
+2024-04-24 11:05:57,664 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/media/videos
+2024-04-24 11:05:57,665 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/media
+2024-04-24 11:05:58,043 INFO    wandb-upload_0:12611 [upload_job.py:push():131] Uploaded file /var/folders/6m/1dqyvm_96_3_0tr2h0nfsrl40000gn/T/tmpkghjtyovwandb/kofclens-media/videos/videos_0_11d649a23c1d21e243ab.mp4
+2024-04-24 11:05:58,296 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: status_report
+2024-04-24 11:05:58,778 DEBUG   SenderThread:12611 [sender.py:send():379] send: files
+2024-04-24 11:05:58,778 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file media/videos/videos_1_5c2a3667180fbf2cd9b7.mp4 with policy now
+2024-04-24 11:05:58,778 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: partial_history
+2024-04-24 11:05:58,780 DEBUG   SenderThread:12611 [sender.py:send():379] send: history
+2024-04-24 11:05:58,780 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: summary_record
+2024-04-24 11:05:58,780 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-04-24 11:05:59,017 INFO    wandb-upload_2:12611 [upload_job.py:push():131] Uploaded file /var/folders/6m/1dqyvm_96_3_0tr2h0nfsrl40000gn/T/tmpkghjtyovwandb/dmdu5xum-media/videos/videos_1_5c2a3667180fbf2cd9b7.mp4
+2024-04-24 11:05:59,672 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/wandb-summary.json
+2024-04-24 11:05:59,672 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/output.log
+2024-04-24 11:05:59,673 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/media/videos/videos_1_5c2a3667180fbf2cd9b7.mp4
+2024-04-24 11:05:59,673 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/media/videos
+2024-04-24 11:06:00,092 INFO    wandb-upload_0:12611 [upload_job.py:push():131] Uploaded file /var/folders/6m/1dqyvm_96_3_0tr2h0nfsrl40000gn/T/tmpkghjtyovwandb/ryplnvb0-media/videos/videos_1_5c2a3667180fbf2cd9b7.mp4
+2024-04-24 11:06:01,550 DEBUG   SenderThread:12611 [sender.py:send():379] send: files
+2024-04-24 11:06:01,550 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: partial_history
+2024-04-24 11:06:01,550 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file media/videos/videos_2_ea5a0444da863d02f8bc.mp4 with policy now
+2024-04-24 11:06:01,552 DEBUG   SenderThread:12611 [sender.py:send():379] send: history
+2024-04-24 11:06:01,552 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: summary_record
+2024-04-24 11:06:01,552 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-04-24 11:06:01,682 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/wandb-summary.json
+2024-04-24 11:06:01,682 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/output.log
+2024-04-24 11:06:01,683 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/media/videos/videos_2_ea5a0444da863d02f8bc.mp4
+2024-04-24 11:06:01,683 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/media/videos
+2024-04-24 11:06:01,769 INFO    wandb-upload_2:12611 [upload_job.py:push():131] Uploaded file /var/folders/6m/1dqyvm_96_3_0tr2h0nfsrl40000gn/T/tmpkghjtyovwandb/6923u3x2-media/videos/videos_2_ea5a0444da863d02f8bc.mp4
+2024-04-24 11:06:02,139 INFO    wandb-upload_0:12611 [upload_job.py:push():131] Uploaded file /var/folders/6m/1dqyvm_96_3_0tr2h0nfsrl40000gn/T/tmpkghjtyovwandb/krldwh9q-media/videos/videos_2_ea5a0444da863d02f8bc.mp4
+2024-04-24 11:06:02,995 DEBUG   SenderThread:12611 [sender.py:send():379] send: exit
+2024-04-24 11:06:02,995 INFO    SenderThread:12611 [sender.py:send_exit():586] handling exit code: 1
+2024-04-24 11:06:02,995 INFO    SenderThread:12611 [sender.py:send_exit():588] handling runtime: 9
+2024-04-24 11:06:02,996 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-04-24 11:06:02,996 INFO    SenderThread:12611 [sender.py:send_exit():594] send defer
+2024-04-24 11:06:02,996 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:02,996 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 0
+2024-04-24 11:06:02,997 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:02,997 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 0
+2024-04-24 11:06:02,997 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 1
+2024-04-24 11:06:02,997 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:02,997 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 1
+2024-04-24 11:06:02,997 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:02,997 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 1
+2024-04-24 11:06:02,997 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 2
+2024-04-24 11:06:02,997 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:02,997 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 2
+2024-04-24 11:06:02,997 INFO    HandlerThread:12611 [system_monitor.py:finish():203] Stopping system monitor
+2024-04-24 11:06:02,997 DEBUG   SystemMonitor:12611 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-04-24 11:06:02,998 INFO    HandlerThread:12611 [interfaces.py:finish():202] Joined cpu monitor
+2024-04-24 11:06:02,998 DEBUG   SystemMonitor:12611 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-04-24 11:06:02,998 INFO    HandlerThread:12611 [interfaces.py:finish():202] Joined disk monitor
+2024-04-24 11:06:02,998 DEBUG   SystemMonitor:12611 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-04-24 11:06:02,998 INFO    HandlerThread:12611 [interfaces.py:finish():202] Joined memory monitor
+2024-04-24 11:06:02,999 INFO    HandlerThread:12611 [interfaces.py:finish():202] Joined network monitor
+2024-04-24 11:06:02,999 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:02,999 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 2
+2024-04-24 11:06:02,999 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 3
+2024-04-24 11:06:02,999 DEBUG   SenderThread:12611 [sender.py:send():379] send: stats
+2024-04-24 11:06:03,000 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:03,000 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 3
+2024-04-24 11:06:03,000 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:03,000 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 3
+2024-04-24 11:06:03,000 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 4
+2024-04-24 11:06:03,000 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:03,001 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 4
+2024-04-24 11:06:03,690 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/wandb-summary.json
+2024-04-24 11:06:03,690 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/output.log
+2024-04-24 11:06:04,695 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/output.log
+2024-04-24 11:06:09,027 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: poll_exit
+2024-04-24 11:06:09,029 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: status_report
+2024-04-24 11:06:09,029 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:09,031 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 4
+2024-04-24 11:06:09,031 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 5
+2024-04-24 11:06:09,032 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: poll_exit
+2024-04-24 11:06:09,031 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-24 11:06:09,032 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: status_report
+2024-04-24 11:06:09,033 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:09,033 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 5
+2024-04-24 11:06:09,034 DEBUG   SenderThread:12611 [sender.py:send():379] send: history
+2024-04-24 11:06:09,034 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: summary_record
+2024-04-24 11:06:09,036 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-04-24 11:06:09,036 DEBUG   SenderThread:12611 [sender.py:send():379] send: summary
+2024-04-24 11:06:09,037 INFO    SenderThread:12611 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-04-24 11:06:09,038 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:09,038 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 5
+2024-04-24 11:06:09,038 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 6
+2024-04-24 11:06:09,039 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:09,039 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 6
+2024-04-24 11:06:09,039 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:09,039 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 6
+2024-04-24 11:06:09,044 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: status_report
+2024-04-24 11:06:09,140 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 7
+2024-04-24 11:06:09,140 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:09,140 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 7
+2024-04-24 11:06:09,141 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:09,141 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 7
+2024-04-24 11:06:09,717 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/config.yaml
+2024-04-24 11:06:09,718 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/wandb-summary.json
+2024-04-24 11:06:10,027 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: poll_exit
+2024-04-24 11:06:12,415 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 8
+2024-04-24 11:06:12,416 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: poll_exit
+2024-04-24 11:06:12,416 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:12,416 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 8
+2024-04-24 11:06:12,416 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:12,416 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 8
+2024-04-24 11:06:12,416 INFO    SenderThread:12611 [job_builder.py:build():318] Attempting to build job artifact
+2024-04-24 11:06:12,417 INFO    SenderThread:12611 [job_builder.py:_get_source_type():455] is repo sourced job
+2024-04-24 11:06:12,473 INFO    SenderThread:12611 [job_builder.py:build():431] adding wandb-job metadata file
+2024-04-24 11:06:12,479 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 9
+2024-04-24 11:06:12,480 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:12,480 DEBUG   SenderThread:12611 [sender.py:send():379] send: artifact
+2024-04-24 11:06:12,480 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 9
+2024-04-24 11:06:12,732 INFO    Thread-12 :12611 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/output.log
+2024-04-24 11:06:13,039 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: poll_exit
+2024-04-24 11:06:13,167 INFO    wandb-upload_1:12611 [upload_job.py:push():86] Skipped uploading /Users/aida/Library/Application Support/wandb/artifacts/staging/tmp87oszgw0
+2024-04-24 11:06:13,167 INFO    wandb-upload_0:12611 [upload_job.py:push():86] Skipped uploading /var/folders/6m/1dqyvm_96_3_0tr2h0nfsrl40000gn/T/tmpou6i2ljw/wandb-job.json
+2024-04-24 11:06:13,354 INFO    wandb-upload_2:12611 [upload_job.py:push():89] Uploaded file /Users/aida/Library/Application Support/wandb/artifacts/staging/tmpjzla8o0h
+2024-04-24 11:06:14,077 INFO    SenderThread:12611 [sender.py:send_artifact():1468] sent artifact job-https___github.com_beste-oztop_ec523-project.git_main.py - {'id': 'QXJ0aWZhY3Q6ODA4NTAyMTkz', 'state': 'PENDING', 'artifactSequence': {'id': 'QXJ0aWZhY3RDb2xsZWN0aW9uOjE1NTk1NDEwOQ==', 'latestArtifact': {'id': 'QXJ0aWZhY3Q6ODA4NTAxMTI4', 'versionIndex': 13}}}
+2024-04-24 11:06:14,078 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:14,078 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: status_report
+2024-04-24 11:06:14,078 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 9
+2024-04-24 11:06:14,078 INFO    SenderThread:12611 [dir_watcher.py:finish():358] shutting down directory watcher
+2024-04-24 11:06:14,743 INFO    SenderThread:12611 [dir_watcher.py:finish():388] scan: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files
+2024-04-24 11:06:14,744 INFO    SenderThread:12611 [dir_watcher.py:finish():402] scan save: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/diff.patch diff.patch
+2024-04-24 11:06:14,744 INFO    SenderThread:12611 [dir_watcher.py:finish():402] scan save: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/requirements.txt requirements.txt
+2024-04-24 11:06:14,744 INFO    SenderThread:12611 [dir_watcher.py:finish():402] scan save: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/output.log output.log
+2024-04-24 11:06:14,745 INFO    SenderThread:12611 [dir_watcher.py:finish():402] scan save: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/config.yaml config.yaml
+2024-04-24 11:06:14,747 INFO    SenderThread:12611 [dir_watcher.py:finish():402] scan save: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/events.out.tfevents.1713971154.Aidas-MacBook.12600.0 events.out.tfevents.1713971154.Aidas-MacBook.12600.0
+2024-04-24 11:06:14,752 INFO    SenderThread:12611 [dir_watcher.py:finish():402] scan save: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/wandb-summary.json wandb-summary.json
+2024-04-24 11:06:14,753 INFO    SenderThread:12611 [dir_watcher.py:finish():402] scan save: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/wandb-metadata.json wandb-metadata.json
+2024-04-24 11:06:14,757 INFO    SenderThread:12611 [dir_watcher.py:finish():402] scan save: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/code/main.py code/main.py
+2024-04-24 11:06:14,759 INFO    SenderThread:12611 [dir_watcher.py:finish():402] scan save: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/media/videos/videos_0_11d649a23c1d21e243ab.mp4 media/videos/videos_0_11d649a23c1d21e243ab.mp4
+2024-04-24 11:06:14,759 INFO    SenderThread:12611 [dir_watcher.py:finish():402] scan save: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/media/videos/videos_1_5c2a3667180fbf2cd9b7.mp4 media/videos/videos_1_5c2a3667180fbf2cd9b7.mp4
+2024-04-24 11:06:14,759 INFO    SenderThread:12611 [dir_watcher.py:finish():402] scan save: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/media/videos/videos_2_ea5a0444da863d02f8bc.mp4 media/videos/videos_2_ea5a0444da863d02f8bc.mp4
+2024-04-24 11:06:14,759 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 10
+2024-04-24 11:06:14,759 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: poll_exit
+2024-04-24 11:06:14,759 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:14,760 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 10
+2024-04-24 11:06:14,760 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:14,760 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 10
+2024-04-24 11:06:14,760 INFO    SenderThread:12611 [file_pusher.py:finish():172] shutting down file pusher
+2024-04-24 11:06:14,954 INFO    wandb-upload_1:12611 [upload_job.py:push():131] Uploaded file /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/requirements.txt
+2024-04-24 11:06:14,979 INFO    wandb-upload_0:12611 [upload_job.py:push():131] Uploaded file /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/config.yaml
+2024-04-24 11:06:15,023 INFO    wandb-upload_3:12611 [upload_job.py:push():131] Uploaded file /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/wandb-summary.json
+2024-04-24 11:06:15,036 INFO    wandb-upload_2:12611 [upload_job.py:push():131] Uploaded file /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/files/output.log
+2024-04-24 11:06:15,047 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: poll_exit
+2024-04-24 11:06:15,048 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: poll_exit
+2024-04-24 11:06:15,242 INFO    Thread-11 :12611 [sender.py:transition_state():614] send defer: 11
+2024-04-24 11:06:15,243 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:15,243 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 11
+2024-04-24 11:06:15,244 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:15,244 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 11
+2024-04-24 11:06:15,245 INFO    SenderThread:12611 [file_pusher.py:join():178] waiting for file pusher
+2024-04-24 11:06:15,249 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 12
+2024-04-24 11:06:15,250 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:15,250 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 12
+2024-04-24 11:06:15,251 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:15,251 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 12
+2024-04-24 11:06:15,251 INFO    SenderThread:12611 [file_stream.py:finish():614] file stream finish called
+2024-04-24 11:06:15,320 INFO    SenderThread:12611 [file_stream.py:finish():618] file stream finish is done
+2024-04-24 11:06:15,320 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 13
+2024-04-24 11:06:15,321 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:15,321 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 13
+2024-04-24 11:06:15,321 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:15,321 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 13
+2024-04-24 11:06:15,321 INFO    SenderThread:12611 [sender.py:transition_state():614] send defer: 14
+2024-04-24 11:06:15,322 DEBUG   SenderThread:12611 [sender.py:send():379] send: final
+2024-04-24 11:06:15,322 DEBUG   SenderThread:12611 [sender.py:send():379] send: footer
+2024-04-24 11:06:15,322 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: defer
+2024-04-24 11:06:15,322 INFO    HandlerThread:12611 [handler.py:handle_request_defer():172] handle defer: 14
+2024-04-24 11:06:15,322 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: defer
+2024-04-24 11:06:15,322 INFO    SenderThread:12611 [sender.py:send_request_defer():610] handle sender defer: 14
+2024-04-24 11:06:15,323 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: poll_exit
+2024-04-24 11:06:15,324 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: poll_exit
+2024-04-24 11:06:15,324 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: server_info
+2024-04-24 11:06:15,324 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: get_summary
+2024-04-24 11:06:15,325 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: sampled_history
+2024-04-24 11:06:15,325 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: poll_exit
+2024-04-24 11:06:15,325 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-24 11:06:15,325 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: poll_exit
+2024-04-24 11:06:15,326 DEBUG   SenderThread:12611 [sender.py:send_request():406] send_request: server_info
+2024-04-24 11:06:15,381 INFO    MainThread:12611 [wandb_run.py:_footer_history_summary_info():3936] rendering history
+2024-04-24 11:06:15,382 INFO    MainThread:12611 [wandb_run.py:_footer_history_summary_info():3968] rendering summary
+2024-04-24 11:06:15,382 INFO    MainThread:12611 [wandb_run.py:_footer_sync_info():3895] logging synced files
+2024-04-24 11:06:15,383 DEBUG   HandlerThread:12611 [handler.py:handle_request():146] handle_request: shutdown
+2024-04-24 11:06:15,383 INFO    HandlerThread:12611 [handler.py:finish():866] shutting down handler
+2024-04-24 11:06:16,327 INFO    WriterThread:12611 [datastore.py:close():296] close: /Users/aida/PycharmProjects/ec523-project/ec523-project/wandb/run-20240424_110553-pyxx6gcl/run-pyxx6gcl.wandb
+2024-04-24 11:06:16,385 INFO    SenderThread:12611 [sender.py:finish():1546] shutting down sender
+2024-04-24 11:06:16,386 INFO    SenderThread:12611 [file_pusher.py:finish():172] shutting down file pusher
+2024-04-24 11:06:16,386 INFO    SenderThread:12611 [file_pusher.py:join():178] waiting for file pusher

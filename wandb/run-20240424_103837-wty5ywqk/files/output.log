@@ -1,0 +1,8 @@
+
+num_iterations: 488
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 191, in <module>
+    ppo_agent.execute(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 163, in execute
+    obs, actions, logprobs, rewards, dones, values = self.environment_interaction()
+TypeError: environment_interaction() missing 1 required positional argument: 'args'

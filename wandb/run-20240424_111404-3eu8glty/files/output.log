@@ -1,0 +1,20 @@
+num_iterations: 488
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971642/rl-video-episode-0.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971642/rl-video-episode-0.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971642/rl-video-episode-0.mp4
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971642/rl-video-episode-1.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971642/rl-video-episode-1.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971642/rl-video-episode-1.mp4
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971642/rl-video-episode-8.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971642/rl-video-episode-8.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971642/rl-video-episode-8.mp4
+SPS: 0
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 191, in <module>
+    ppo_agent.execute(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 185, in execute
+    if global_step % args.log_interval == 0:
+AttributeError: 'Args' object has no attribute 'log_interval'

@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 191, in <module>
+    ppo_agent.execute(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 163, in execute
+    obs, actions, logprobs, rewards, dones, values = self.environment_interaction(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 46, in environment_interaction
+    obs = torch.zeros((args.num_steps, self.args.num_envs) + self.envs.single_observation_space.shape).to(self.device)
+AttributeError: 'PPO' object has no attribute 'args'
+num_iterations: 488

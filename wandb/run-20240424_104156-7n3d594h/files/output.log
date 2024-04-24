@@ -1,0 +1,21 @@
+num_iterations: 488
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713969714/rl-video-episode-0.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713969714/rl-video-episode-0.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713969714/rl-video-episode-0.mp4
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713969714/rl-video-episode-1.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713969714/rl-video-episode-1.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713969714/rl-video-episode-1.mp4
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 191, in <module>
+    ppo_agent.execute(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 164, in execute
+    advantages, returns = self.compute_advantage(rewards, dones, values, args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 83, in compute_advantage
+    delta = rewards[t] + self.args.gamma * values[t + 1] * mask - values[t]
+AttributeError: 'PPO' object has no attribute 'args'
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713969714/rl-video-episode-8.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713969714/rl-video-episode-8.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713969714/rl-video-episode-8.mp4

@@ -1,0 +1,1 @@
+{"videos": {"_type": "video-file", "sha256": "ea5a0444da863d02f8bc4c0097981b116d3eacf52b806d8cb89b19e62737b1ee", "size": 89595, "path": "media/videos/videos_2_ea5a0444da863d02f8bc.mp4"}, "_timestamp": 1713971154.002124, "_runtime": 0.7908620834350586, "_step": 3, "_wandb": {"runtime": 9}, "global_step": 0}

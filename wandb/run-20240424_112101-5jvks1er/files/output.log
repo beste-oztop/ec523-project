@@ -1,0 +1,57 @@
+num_iterations: 488
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-0.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-0.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-0.mp4
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-1.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-1.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-1.mp4
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-8.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-8.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-8.mp4
+SPS: 0
+SPS: 0
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-27.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-27.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-27.mp4
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+t:   0%|          | 0/201 [00:00<?, ?it/s, now=None]
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-64.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-64.mp4
+Moviepy - Done !
+
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-64.mp4
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-125.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-125.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972059/rl-video-episode-125.mp4
+SPS: 0
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 194, in <module>
+    ppo_agent.execute(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 185, in execute
+    pg_loss, v_loss, entropy_loss, old_approx_kl, approx_kl, clipfracs = self.optimize_policy(b_obs, b_logprobs, b_actions, b_advantages, b_returns, b_values, args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 146, in optimize_policy
+    self.optimizer.step()
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/torch/optim/optimizer.py", line 385, in wrapper
+    out = func(*args, **kwargs)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/torch/optim/optimizer.py", line 76, in _use_grad
+    ret = func(self, *args, **kwargs)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/torch/optim/adam.py", line 166, in step
+    adam(
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/torch/optim/adam.py", line 316, in adam
+    func(params,
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/torch/optim/adam.py", line 391, in _single_tensor_adam
+    exp_avg.lerp_(grad, 1 - beta1)

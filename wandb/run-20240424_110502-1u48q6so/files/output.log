@@ -1,0 +1,25 @@
+num_iterations: 488
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971101/rl-video-episode-0.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971101/rl-video-episode-0.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971101/rl-video-episode-0.mp4
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971101/rl-video-episode-1.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971101/rl-video-episode-1.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971101/rl-video-episode-1.mp4
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971101/rl-video-episode-8.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971101/rl-video-episode-8.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713971101/rl-video-episode-8.mp4
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 191, in <module>
+    ppo_agent.execute(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 169, in execute
+    pg_loss, v_loss, entropy_loss, old_approx_kl, approx_kl, clipfracs, explained_var = self.optimize_policy(b_obs, b_logprobs, b_actions, b_advantages, b_returns, b_values, args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 140, in optimize_policy
+    loss.backward()
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/torch/_tensor.py", line 522, in backward
+    torch.autograd.backward(
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/torch/autograd/__init__.py", line 266, in backward
+    Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+RuntimeError: Trying to backward through the graph a second time (or directly access saved tensors after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() or autograd.grad(). Specify retain_graph=True if you need to backward through the graph a second time or if you need to access saved tensors after calling backward.

@@ -1,0 +1,119 @@
+num_iterations: 488
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-0.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-0.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-0.mp4
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-1.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-1.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-1.mp4
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-8.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-8.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-8.mp4
+SPS: 0
+SPS: 0
+t:  76%|███████▌  | 153/201 [00:00<00:00, 435.00it/s, now=None]
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-27.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-27.mp4
+Moviepy - Done !
+
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-27.mp4
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-64.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-64.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-64.mp4
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+t:  23%|██▎       | 47/201 [00:00<00:00, 461.32it/s, now=None]
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-125.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-125.mp4
+Moviepy - Done !
+
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-125.mp4
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-216.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-216.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-216.mp4
+SPS: 0
+SPS: 0
+SPS: 0
+global_step=24, episodic_return=[-1063.586]
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-343.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-343.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-343.mp4
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+global_step=49, episodic_return=[-1630.6425]
+SPS: 0
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-512.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-512.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713972441/rl-video-episode-512.mp4
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+SPS: 0
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 194, in <module>
+    ppo_agent.execute(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 180, in execute
+    pg_loss, v_loss, entropy_loss, old_approx_kl, approx_kl, clipfracs = self.optimize_policy(b_obs, b_logprobs,
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 112, in optimize_policy
+    v_loss_unclipped = (newvalue - b_returns[mb_inds]) ** 2

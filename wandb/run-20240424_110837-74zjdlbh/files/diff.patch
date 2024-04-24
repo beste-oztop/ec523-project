@@ -1,0 +1,644 @@
+diff --git a/algorithms/PPO.py b/algorithms/PPO.py
+index 09cd6ab..b08ab44 100644
+--- a/algorithms/PPO.py
++++ b/algorithms/PPO.py
+@@ -13,7 +13,7 @@ from torch.distributions.normal import Normal
+ from torch.utils.tensorboard import SummaryWriter
+ 
+ from buffers import ReplayBuffer
+-from networks import AgentPPO
++from networks import PPONetwork
+ 
+ class PPO():
+ 
+@@ -26,11 +26,15 @@ class PPO():
+         torch.manual_seed(args.seed)
+         torch.backends.cudnn.deterministic = args.torch_deterministic
+ 
++        args.batch_size = int(args.num_envs * args.num_steps)
++        args.minibatch_size = int(args.batch_size // args.num_minibatches)
++        args.num_iterations = args.total_timesteps // args.batch_size
++
+         self.device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
+ 
+         self.envs = envs
+         self.writer = writer
+-        self.agent = AgentPPO(envs).to(self.device)
++        self.agent = PPONetwork(envs).to(self.device)
+         self.optimizer = optim.Adam(self.agent.parameters(), lr=args.learning_rate)
+ 
+ 
+@@ -38,9 +42,9 @@ class PPO():
+ 
+ 
+     
+-    def environment_interaction(self,args):
+-        obs = torch.zeros((args.num_steps, self.args.num_envs) + self.envs.single_observation_space.shape).to(self.device)
+-        actions = torch.zeros((args.num_steps, self.args.num_envs) + self.envs.single_action_space.shape).to(self.device)
++    def environment_interaction(self, args):
++        obs = torch.zeros((args.num_steps, args.num_envs) + self.envs.single_observation_space.shape).to(self.device)
++        actions = torch.zeros((args.num_steps, args.num_envs) + self.envs.single_action_space.shape).to(self.device)
+         logprobs = torch.zeros((args.num_steps, args.num_envs)).to(self.device)
+         rewards = torch.zeros((args.num_steps, args.num_envs)).to(self.device)
+         dones = torch.zeros((args.num_steps, args.num_envs)).to(self.device)
+@@ -50,7 +54,7 @@ class PPO():
+         next_obs = torch.Tensor(next_obs).to(self.device)
+         next_done = torch.zeros(args.num_envs).to(self.device)
+ 
+-        for step in range(self.args.num_steps):
++        for step in range(args.num_steps):
+             obs[step] = next_obs
+             dones[step] = next_done
+ 
+@@ -65,20 +69,23 @@ class PPO():
+             next_done = np.logical_or(terminations, truncations)
+             rewards[step] = torch.tensor(reward).to(self.device).view(-1)
+             next_obs, next_done = torch.Tensor(next_obs).to(self.device), torch.Tensor(next_done).to(self.device)
+-
+-        return obs, actions, logprobs, rewards, dones, values
++            next_value = self.agent.get_value(next_obs).reshape(1, -1)
++        return obs, actions, logprobs, rewards, dones, values, next_obs, next_done, next_value
+     
+ 
+-    def compute_advantage(self, rewards, dones, values):
++    def compute_advantage(self, rewards, dones, values, next_obs, next_done, next_value, args):
+         advantages = torch.zeros_like(rewards).to(self.device)
+-        returns = torch.zeros_like(rewards).to(self.device)
+-        last_advantage = 0
+-        last_return = 0
+-        for t in reversed(range(self.args.num_steps)):
+-            mask = 1 - dones[t].float()
+-            delta = rewards[t] + self.args.gamma * values[t + 1] * mask - values[t]
+-            advantages[t] = last_advantage = delta + self.args.gamma * self.args.gae_lambda * last_advantage * mask
+-            returns[t] = last_return = rewards[t] + self.args.gamma * last_return * mask
++        lastgaelam = 0
++        for t in reversed(range(args.num_steps)):
++            if t == args.num_steps - 1:
++                nextnonterminal = 1.0 - next_done
++                nextvalues = next_value
++            else:
++                nextnonterminal = 1.0 - dones[t + 1]
++                nextvalues = values[t + 1]
++            delta = rewards[t] + args.gamma * nextvalues * nextnonterminal - values[t]
++            advantages[t] = lastgaelam = delta + args.gamma * args.gae_lambda * nextnonterminal * lastgaelam
++        returns = advantages + values
+         return advantages, returns
+ 
+ 
+@@ -92,15 +99,15 @@ class PPO():
+         return b_obs, b_logprobs, b_actions, b_advantages, b_returns, b_values
+     
+     
+-    def optimize_policy(self, b_obs, b_logprobs, b_actions, b_advantages, b_returns, b_values):
+-        b_inds = np.arange(self.args.batch_size)
++    def optimize_policy(self, b_obs, b_logprobs, b_actions, b_advantages, b_returns, b_values, args):
++        b_inds = np.arange(args.batch_size)
+         clipfracs = []
+ 
+-        for epoch in range(self.args.update_epochs):
++        for epoch in range(args.update_epochs):
+             np.random.shuffle(b_inds)
+ 
+-            for start in range(0, self.args.batch_size, self.args.minibatch_size):
+-                end = start + self.args.minibatch_size
++            for start in range(0, args.batch_size, args.minibatch_size):
++                end = start + args.minibatch_size
+                 mb_inds = b_inds[start:end]
+ 
+                 _, newlogprob, entropy, newvalue = self.agent.get_action_and_value(b_obs[mb_inds], b_actions[mb_inds])
+@@ -109,16 +116,16 @@ class PPO():
+ 
+                 # Policy loss
+                 pg_loss1 = -b_advantages[mb_inds] * ratio
+-                pg_loss2 = -b_advantages[mb_inds] * torch.clamp(ratio, 1 - self.args.clip_coef, 1 + self.args.clip_coef)
++                pg_loss2 = -b_advantages[mb_inds] * torch.clamp(ratio, 1 - args.clip_coef, 1 + args.clip_coef)
+                 pg_loss = torch.mean(torch.max(pg_loss1, pg_loss2))
+ 
+                 # Value loss
+-                if self.args.clip_vloss:
++                if args.clip_vloss:
+                     v_loss_unclipped = (newvalue - b_returns[mb_inds]) ** 2
+                     v_clipped = b_values[mb_inds] + torch.clamp(
+                         newvalue - b_values[mb_inds],
+-                        -self.args.clip_coef,
+-                        self.args.clip_coef,
++                        -args.clip_coef,
++                        args.clip_coef,
+                     )
+                     v_loss_clipped = (v_clipped - b_returns[mb_inds]) ** 2
+                     v_loss_max = torch.max(v_loss_unclipped, v_loss_clipped)
+@@ -127,20 +134,21 @@ class PPO():
+                     v_loss = 0.5 * torch.mean((newvalue - b_returns[mb_inds]) ** 2)
+ 
+                 entropy_loss = torch.mean(entropy)
+-                loss = pg_loss - self.args.ent_coef * entropy_loss + v_loss * self.args.vf_coef
++                loss = pg_loss - args.ent_coef * entropy_loss + v_loss * args.vf_coef
+ 
+                 self.optimizer.zero_grad()
+                 loss.backward()
+-                nn.utils.clip_grad_norm_(self.agent.parameters(), self.args.max_grad_norm)
++                nn.utils.clip_grad_norm_(self.agent.parameters(), args.max_grad_norm)
+                 self.optimizer.step()
+-
++                loss = loss.detach()
++                
+                 with torch.no_grad():
+                     # Calculate approx_kl
+                     old_approx_kl = (-logratio).mean()
+                     approx_kl = ((ratio - 1) - logratio).mean()
+-                    clipfracs += [((ratio - 1.0).abs() > self.args.clip_coef).float().mean().item()]
++                    clipfracs += [((ratio - 1.0).abs() > args.clip_coef).float().mean().item()]
+ 
+-            if self.args.target_kl is not None and approx_kl > self.args.target_kl:
++            if args.target_kl is not None and approx_kl > args.target_kl:
+                 break
+ 
+ 
+@@ -148,6 +156,7 @@ class PPO():
+         #start of the game
+         global_step = 0
+ 
++        print("num_iterations:", args.num_iterations)
+         for iteration in range(1, args.num_iterations + 1):
+             # Annealing the rate if instructed to do so.
+             if args.anneal_lr:
+@@ -155,21 +164,21 @@ class PPO():
+                 lrnow = frac * args.learning_rate
+                 self.optimizer.param_groups[0]["lr"] = lrnow
+ 
+-            obs, actions, logprobs, rewards, dones, values = self.environment_interaction()
+-            advantages, returns = self.compute_advantage(rewards, dones, values)
++            obs, actions, logprobs, rewards, dones, values, next_obs, next_done, next_value = self.environment_interaction(args)
++            advantages, returns = self.compute_advantage(rewards, dones, values, next_obs, next_done, next_value, args)
+             b_obs, b_logprobs, b_actions, b_advantages, b_returns, b_values = self.flatten_batch(obs, logprobs, actions, advantages, returns, values)
+-            pg_loss, v_loss, entropy_loss, old_approx_kl, approx_kl, clipfracs, explained_var = self.optimize_policy(b_obs, b_logprobs, b_actions, b_advantages, b_returns, b_values)
++            pg_loss, v_loss, entropy_loss, old_approx_kl, approx_kl, clipfracs, explained_var = self.optimize_policy(b_obs, b_logprobs, b_actions, b_advantages, b_returns, b_values, args)
+ 
+             y_pred, y_true = b_values.cpu().numpy(), b_returns.cpu().numpy()
+             var_y = np.var(y_true)
+             explained_var = np.nan if var_y == 0 else 1 - np.var(y_true - y_pred) / var_y
+ 
+             # Logging and monitoring
+-            global_step += self.args.num_envs
++            global_step += args.num_envs
+             print("SPS:", int(global_step / (time.time() - self.start_time)))
+ 
+             # Log metrics using SummaryWriter
+-            if global_step % self.args.log_interval == 0:
++            if global_step % args.log_interval == 0:
+                 self.writer.add_scalar("charts/learning_rate", self.optimizer.param_groups[0]["lr"], global_step)
+                 self.writer.add_scalar("losses/value_loss", v_loss.item(), global_step)
+                 self.writer.add_scalar("losses/policy_loss", pg_loss.item(), global_step)
+diff --git a/algorithms/__pycache__/PPO.cpython-39.pyc b/algorithms/__pycache__/PPO.cpython-39.pyc
+index 05cf574..93447ee 100644
+Binary files a/algorithms/__pycache__/PPO.cpython-39.pyc and b/algorithms/__pycache__/PPO.cpython-39.pyc differ
+diff --git a/main.py b/main.py
+index e293bbd..43ab78c 100644
+--- a/main.py
++++ b/main.py
+@@ -23,7 +23,7 @@ class Args:
+     """ name of the algorithm"""
+     available_network_modes = ["default", "deeper", "wider", "mini"]
+     """list of all available network mode"""
+-    network_mode = "mini"
++    network_mode = "default"
+     """the active network mode"""
+ 
+     seed: int = 1
+@@ -33,7 +33,7 @@ class Args:
+     cuda: bool = True
+     """if toggled, cuda will be enabled by default"""
+ 
+-    track: bool = False
++    track: bool = True
+     """if toggled, this experiment will be tracked with Weights and Biases"""
+     wandb_project_name: str = f"ec523"
+     """the wandb's project name"""
+@@ -46,8 +46,8 @@ class Args:
+     upload_model: bool = False
+     """whether to upload the saved model to huggingface"""
+ 
+-    # Algorithm specific arguments
+-    env_id: str = "Humanoid-v4"
++    # DQN specific arguments
++    env_id: str = "Pendulum-v1"
+     """the id of the environment"""
+     total_timesteps: int = 500000
+     """total timesteps of the experiments"""
+@@ -76,6 +76,49 @@ class Args:
+     train_frequency: int = 10
+     """the frequency of training"""
+ 
++    # PPO specific arguments
++
++    total_timesteps: int = 1000000
++    """total timesteps of the experiments"""
++    learning_rate: float = 3e-4
++    """the learning rate of the optimizer"""
++    num_envs: int = 1
++    """the number of parallel game environments"""
++    num_steps: int = 2048
++    """the number of steps to run in each environment per policy rollout"""
++    anneal_lr: bool = True
++    """Toggle learning rate annealing for policy and value networks"""
++    gamma: float = 0.99
++    """the discount factor gamma"""
++    gae_lambda: float = 0.95
++    """the lambda for the general advantage estimation"""
++    num_minibatches: int = 32
++    """the number of mini-batches"""
++    update_epochs: int = 10
++    """the K epochs to update the policy"""
++    norm_adv: bool = True
++    """Toggles advantages normalization"""
++    clip_coef: float = 0.2
++    """the surrogate clipping coefficient"""
++    clip_vloss: bool = True
++    """Toggles whether or not to use a clipped loss for the value function, as per the paper."""
++    ent_coef: float = 0.0
++    """coefficient of the entropy"""
++    vf_coef: float = 0.5
++    """coefficient of the value function"""
++    max_grad_norm: float = 0.5
++    """the maximum norm for the gradient clipping"""
++    target_kl: float = None
++    """the target KL divergence threshold"""
++
++    # to be filled in runtime
++    batch_size: int = 0
++    """the batch size (computed in runtime)"""
++    minibatch_size: int = 0
++    """the mini-batch size (computed in runtime)"""
++    num_iterations: int = 0
++    """the number of iterations (computed in runtime)"""
++
+ 
+ def make_env(env_id, seed, idx, capture_video, run_name, args):
+     def thunk():
+@@ -144,8 +187,8 @@ if __name__ == '__main__':
+         dqn_agent.execute(args)
+ 
+     elif args.alg_name == "PPO":
+-        dqn_agent = PPO(envs, writer, args)
+-        dqn_agent.execute(args)
++        ppo_agent = PPO(envs, writer, args)
++        ppo_agent.execute(args)
+ 
+     else:
+         raise NotImplementedError
+diff --git a/networks/__init__.py b/networks/__init__.py
+index fd05bc0..6605898 100644
+--- a/networks/__init__.py
++++ b/networks/__init__.py
+@@ -87,7 +87,7 @@ class WiderQNetwork(nn.Module):
+ 
+ 
+ # Agent network implementation for PPO
+-class AgentPPO(nn.Module):
++class PPONetwork(nn.Module):
+     def __init__(self, envs):
+         super().__init__()
+         self.critic = nn.Sequential(
+diff --git a/networks/__pycache__/__init__.cpython-39.pyc b/networks/__pycache__/__init__.cpython-39.pyc
+index 9c242a3..53915ac 100644
+Binary files a/networks/__pycache__/__init__.cpython-39.pyc and b/networks/__pycache__/__init__.cpython-39.pyc differ
+diff --git a/runs/PPO_CartPole-v1_mini_network_1_1713918525/events.out.tfevents.1713918528.Aidas-MacBook.85177.0 b/runs/PPO_CartPole-v1_mini_network_1_1713918525/events.out.tfevents.1713918528.Aidas-MacBook.85177.0
+deleted file mode 100644
+index 5630c98..0000000
+Binary files a/runs/PPO_CartPole-v1_mini_network_1_1713918525/events.out.tfevents.1713918528.Aidas-MacBook.85177.0 and /dev/null differ
+diff --git a/runs/PPO_CartPole-v1_mini_network_1_1713919006/events.out.tfevents.1713919006.Aidas-MacBook.85376.0 b/runs/PPO_CartPole-v1_mini_network_1_1713919006/events.out.tfevents.1713919006.Aidas-MacBook.85376.0
+deleted file mode 100644
+index e8ce915..0000000
+Binary files a/runs/PPO_CartPole-v1_mini_network_1_1713919006/events.out.tfevents.1713919006.Aidas-MacBook.85376.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v1_mini_network_1_1713919219/events.out.tfevents.1713919219.Aidas-MacBook.85418.0 b/runs/PPO_Humanoid-v1_mini_network_1_1713919219/events.out.tfevents.1713919219.Aidas-MacBook.85418.0
+deleted file mode 100644
+index 28e320d..0000000
+Binary files a/runs/PPO_Humanoid-v1_mini_network_1_1713919219/events.out.tfevents.1713919219.Aidas-MacBook.85418.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713919226/events.out.tfevents.1713919226.Aidas-MacBook.85424.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713919226/events.out.tfevents.1713919226.Aidas-MacBook.85424.0
+deleted file mode 100644
+index 997066f..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713919226/events.out.tfevents.1713919226.Aidas-MacBook.85424.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713919323/events.out.tfevents.1713919323.Aidas-MacBook.85463.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713919323/events.out.tfevents.1713919323.Aidas-MacBook.85463.0
+deleted file mode 100644
+index 79282fb..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713919323/events.out.tfevents.1713919323.Aidas-MacBook.85463.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713919548/events.out.tfevents.1713919548.Aidas-MacBook.85496.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713919548/events.out.tfevents.1713919548.Aidas-MacBook.85496.0
+deleted file mode 100644
+index e70fe42..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713919548/events.out.tfevents.1713919548.Aidas-MacBook.85496.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713919654/events.out.tfevents.1713919654.Aidas-MacBook.85605.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713919654/events.out.tfevents.1713919654.Aidas-MacBook.85605.0
+deleted file mode 100644
+index d39eed8..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713919654/events.out.tfevents.1713919654.Aidas-MacBook.85605.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713919730/events.out.tfevents.1713919730.Aidas-MacBook.85675.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713919730/events.out.tfevents.1713919730.Aidas-MacBook.85675.0
+deleted file mode 100644
+index 3aed1f3..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713919730/events.out.tfevents.1713919730.Aidas-MacBook.85675.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713919932/events.out.tfevents.1713919932.Aidas-MacBook.85733.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713919932/events.out.tfevents.1713919932.Aidas-MacBook.85733.0
+deleted file mode 100644
+index 5ef4564..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713919932/events.out.tfevents.1713919932.Aidas-MacBook.85733.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713920064/events.out.tfevents.1713920064.Aidas-MacBook.85766.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713920064/events.out.tfevents.1713920064.Aidas-MacBook.85766.0
+deleted file mode 100644
+index f0b8e78..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713920064/events.out.tfevents.1713920064.Aidas-MacBook.85766.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713920694/events.out.tfevents.1713920694.Aidas-MacBook.85865.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713920694/events.out.tfevents.1713920694.Aidas-MacBook.85865.0
+deleted file mode 100644
+index 6710ca0..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713920694/events.out.tfevents.1713920694.Aidas-MacBook.85865.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713920791/events.out.tfevents.1713920791.Aidas-MacBook.85903.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713920791/events.out.tfevents.1713920791.Aidas-MacBook.85903.0
+deleted file mode 100644
+index 878050a..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713920791/events.out.tfevents.1713920791.Aidas-MacBook.85903.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713921410/events.out.tfevents.1713921410.Aidas-MacBook.86065.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713921410/events.out.tfevents.1713921410.Aidas-MacBook.86065.0
+deleted file mode 100644
+index 128b9f0..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713921410/events.out.tfevents.1713921410.Aidas-MacBook.86065.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713922109/events.out.tfevents.1713922109.Aidas-MacBook.22284.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713922109/events.out.tfevents.1713922109.Aidas-MacBook.22284.0
+deleted file mode 100644
+index 19cc5ef..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713922109/events.out.tfevents.1713922109.Aidas-MacBook.22284.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713922395/events.out.tfevents.1713922395.Aidas-MacBook.22816.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713922395/events.out.tfevents.1713922395.Aidas-MacBook.22816.0
+deleted file mode 100644
+index a60f1e2..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713922395/events.out.tfevents.1713922395.Aidas-MacBook.22816.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713922790/events.out.tfevents.1713922790.Aidas-MacBook.22924.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713922790/events.out.tfevents.1713922790.Aidas-MacBook.22924.0
+deleted file mode 100644
+index 9810099..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713922790/events.out.tfevents.1713922790.Aidas-MacBook.22924.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713922812/events.out.tfevents.1713922812.Aidas-MacBook.22935.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713922812/events.out.tfevents.1713922812.Aidas-MacBook.22935.0
+deleted file mode 100644
+index 2dc87ad..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713922812/events.out.tfevents.1713922812.Aidas-MacBook.22935.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713922868/events.out.tfevents.1713922868.Aidas-MacBook.22960.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713922868/events.out.tfevents.1713922868.Aidas-MacBook.22960.0
+deleted file mode 100644
+index a00337f..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713922868/events.out.tfevents.1713922868.Aidas-MacBook.22960.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713923064/events.out.tfevents.1713923064.Aidas-MacBook.22983.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713923064/events.out.tfevents.1713923064.Aidas-MacBook.22983.0
+deleted file mode 100644
+index d690a50..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713923064/events.out.tfevents.1713923064.Aidas-MacBook.22983.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713923166/events.out.tfevents.1713923166.Aidas-MacBook.23007.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713923166/events.out.tfevents.1713923166.Aidas-MacBook.23007.0
+deleted file mode 100644
+index 3c6c5da..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713923166/events.out.tfevents.1713923166.Aidas-MacBook.23007.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713923409/events.out.tfevents.1713923409.Aidas-MacBook.23069.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713923409/events.out.tfevents.1713923409.Aidas-MacBook.23069.0
+deleted file mode 100644
+index ac80904..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713923409/events.out.tfevents.1713923409.Aidas-MacBook.23069.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713923686/events.out.tfevents.1713923686.Aidas-MacBook.23109.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713923686/events.out.tfevents.1713923686.Aidas-MacBook.23109.0
+deleted file mode 100644
+index 32a6e85..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713923686/events.out.tfevents.1713923686.Aidas-MacBook.23109.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713923806/events.out.tfevents.1713923806.Aidas-MacBook.23169.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713923806/events.out.tfevents.1713923806.Aidas-MacBook.23169.0
+deleted file mode 100644
+index 19a4270..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713923806/events.out.tfevents.1713923806.Aidas-MacBook.23169.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713925432/events.out.tfevents.1713925432.Aidas-MacBook.29292.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713925432/events.out.tfevents.1713925432.Aidas-MacBook.29292.0
+deleted file mode 100644
+index 7b054e8..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713925432/events.out.tfevents.1713925432.Aidas-MacBook.29292.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713925640/events.out.tfevents.1713925640.Aidas-MacBook.51939.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713925640/events.out.tfevents.1713925640.Aidas-MacBook.51939.0
+deleted file mode 100644
+index 85b6624..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713925640/events.out.tfevents.1713925640.Aidas-MacBook.51939.0 and /dev/null differ
+diff --git a/runs/PPO_Humanoid-v4_mini_network_1_1713925658/events.out.tfevents.1713925658.Aidas-MacBook.54072.0 b/runs/PPO_Humanoid-v4_mini_network_1_1713925658/events.out.tfevents.1713925658.Aidas-MacBook.54072.0
+deleted file mode 100644
+index ef56987..0000000
+Binary files a/runs/PPO_Humanoid-v4_mini_network_1_1713925658/events.out.tfevents.1713925658.Aidas-MacBook.54072.0 and /dev/null differ
+diff --git a/wandb/debug-cli.aida.log b/wandb/debug-cli.aida.log
+index 4468a63..f73e265 100644
+--- a/wandb/debug-cli.aida.log
++++ b/wandb/debug-cli.aida.log
+@@ -3458,3 +3458,204 @@
+ 2024-04-23 20:28:52 INFO No path found after runs/PPO_CartPole-v1_mini_network_1_1713918525/events.out.tfevents.1713918528.Aidas-MacBook.85177.0
+ 2024-04-23 20:28:53 INFO No path found after runs/PPO_CartPole-v1_mini_network_1_1713918525/events.out.tfevents.1713918528.Aidas-MacBook.85177.0
+ 2024-04-23 20:28:54 INFO No path found after runs/PPO_CartPole-v1_mini_network_1_1713918525/events.out.tfevents.1713918528.Aidas-MacBook.85177.0
++2024-04-23 23:47:09 INFO No path found after runs/PPO_Pendulum-v1_mini_network_1_1713930425/events.out.tfevents.1713930429.Aidas-MacBook.9438.0
++2024-04-23 23:47:10 INFO No path found after runs/PPO_Pendulum-v1_mini_network_1_1713930425/events.out.tfevents.1713930429.Aidas-MacBook.9438.0
++2024-04-23 23:47:10 INFO No path found after runs/PPO_Pendulum-v1_mini_network_1_1713930425/events.out.tfevents.1713930429.Aidas-MacBook.9438.0
++2024-04-23 23:47:10 INFO No path found after runs/PPO_Pendulum-v1_mini_network_1_1713930425/events.out.tfevents.1713930429.Aidas-MacBook.9438.0
++2024-04-23 23:47:11 INFO No path found after runs/PPO_Pendulum-v1_mini_network_1_1713930425/events.out.tfevents.1713930429.Aidas-MacBook.9438.0
++2024-04-23 23:47:12 INFO No path found after runs/PPO_Pendulum-v1_mini_network_1_1713930425/events.out.tfevents.1713930429.Aidas-MacBook.9438.0
++2024-04-23 23:47:13 INFO No path found after runs/PPO_Pendulum-v1_mini_network_1_1713930425/events.out.tfevents.1713930429.Aidas-MacBook.9438.0
++2024-04-23 23:47:14 INFO No path found after runs/PPO_Pendulum-v1_mini_network_1_1713930425/events.out.tfevents.1713930429.Aidas-MacBook.9438.0
++2024-04-23 23:47:15 INFO No path found after runs/PPO_Pendulum-v1_mini_network_1_1713930425/events.out.tfevents.1713930429.Aidas-MacBook.9438.0
++2024-04-23 23:47:16 INFO No path found after runs/PPO_Pendulum-v1_mini_network_1_1713930425/events.out.tfevents.1713930429.Aidas-MacBook.9438.0
++2024-04-24 10:28:59 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713968937/events.out.tfevents.1713968939.Aidas-MacBook.11923.0
++2024-04-24 10:29:00 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713968937/events.out.tfevents.1713968939.Aidas-MacBook.11923.0
++2024-04-24 10:29:00 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713968937/events.out.tfevents.1713968939.Aidas-MacBook.11923.0
++2024-04-24 10:29:00 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713968937/events.out.tfevents.1713968939.Aidas-MacBook.11923.0
++2024-04-24 10:29:01 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713968937/events.out.tfevents.1713968939.Aidas-MacBook.11923.0
++2024-04-24 10:29:02 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713968937/events.out.tfevents.1713968939.Aidas-MacBook.11923.0
++2024-04-24 10:29:03 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713968937/events.out.tfevents.1713968939.Aidas-MacBook.11923.0
++2024-04-24 10:29:04 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713968937/events.out.tfevents.1713968939.Aidas-MacBook.11923.0
++2024-04-24 10:29:05 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713968937/events.out.tfevents.1713968939.Aidas-MacBook.11923.0
++2024-04-24 10:33:46 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969224/events.out.tfevents.1713969226.Aidas-MacBook.11978.0
++2024-04-24 10:33:47 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969224/events.out.tfevents.1713969226.Aidas-MacBook.11978.0
++2024-04-24 10:33:47 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969224/events.out.tfevents.1713969226.Aidas-MacBook.11978.0
++2024-04-24 10:33:47 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969224/events.out.tfevents.1713969226.Aidas-MacBook.11978.0
++2024-04-24 10:33:48 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969224/events.out.tfevents.1713969226.Aidas-MacBook.11978.0
++2024-04-24 10:33:49 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969224/events.out.tfevents.1713969226.Aidas-MacBook.11978.0
++2024-04-24 10:33:50 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969224/events.out.tfevents.1713969226.Aidas-MacBook.11978.0
++2024-04-24 10:33:51 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969224/events.out.tfevents.1713969226.Aidas-MacBook.11978.0
++2024-04-24 10:33:52 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969224/events.out.tfevents.1713969226.Aidas-MacBook.11978.0
++2024-04-24 10:36:43 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969401/events.out.tfevents.1713969403.Aidas-MacBook.12035.0
++2024-04-24 10:36:44 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969401/events.out.tfevents.1713969403.Aidas-MacBook.12035.0
++2024-04-24 10:36:44 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969401/events.out.tfevents.1713969403.Aidas-MacBook.12035.0
++2024-04-24 10:36:44 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969401/events.out.tfevents.1713969403.Aidas-MacBook.12035.0
++2024-04-24 10:36:45 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969401/events.out.tfevents.1713969403.Aidas-MacBook.12035.0
++2024-04-24 10:36:46 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969401/events.out.tfevents.1713969403.Aidas-MacBook.12035.0
++2024-04-24 10:36:47 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969401/events.out.tfevents.1713969403.Aidas-MacBook.12035.0
++2024-04-24 10:36:48 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969401/events.out.tfevents.1713969403.Aidas-MacBook.12035.0
++2024-04-24 10:36:49 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969401/events.out.tfevents.1713969403.Aidas-MacBook.12035.0
++2024-04-24 10:38:38 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969516/events.out.tfevents.1713969518.Aidas-MacBook.12092.0
++2024-04-24 10:38:39 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969516/events.out.tfevents.1713969518.Aidas-MacBook.12092.0
++2024-04-24 10:38:39 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969516/events.out.tfevents.1713969518.Aidas-MacBook.12092.0
++2024-04-24 10:38:39 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969516/events.out.tfevents.1713969518.Aidas-MacBook.12092.0
++2024-04-24 10:38:40 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969516/events.out.tfevents.1713969518.Aidas-MacBook.12092.0
++2024-04-24 10:38:41 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969516/events.out.tfevents.1713969518.Aidas-MacBook.12092.0
++2024-04-24 10:38:42 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969516/events.out.tfevents.1713969518.Aidas-MacBook.12092.0
++2024-04-24 10:38:43 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969516/events.out.tfevents.1713969518.Aidas-MacBook.12092.0
++2024-04-24 10:38:44 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969516/events.out.tfevents.1713969518.Aidas-MacBook.12092.0
++2024-04-24 10:39:22 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969560/events.out.tfevents.1713969562.Aidas-MacBook.12133.0
++2024-04-24 10:39:23 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969560/events.out.tfevents.1713969562.Aidas-MacBook.12133.0
++2024-04-24 10:39:23 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969560/events.out.tfevents.1713969562.Aidas-MacBook.12133.0
++2024-04-24 10:39:23 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969560/events.out.tfevents.1713969562.Aidas-MacBook.12133.0
++2024-04-24 10:39:24 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969560/events.out.tfevents.1713969562.Aidas-MacBook.12133.0
++2024-04-24 10:39:25 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969560/events.out.tfevents.1713969562.Aidas-MacBook.12133.0
++2024-04-24 10:39:26 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969560/events.out.tfevents.1713969562.Aidas-MacBook.12133.0
++2024-04-24 10:39:27 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969560/events.out.tfevents.1713969562.Aidas-MacBook.12133.0
++2024-04-24 10:39:28 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969560/events.out.tfevents.1713969562.Aidas-MacBook.12133.0
++2024-04-24 10:40:16 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:17 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:18 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:19 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:20 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:21 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:22 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:23 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:24 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:25 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:26 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:27 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:28 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:28 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:28 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:29 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:30 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:31 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:32 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:40:33 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969614/events.out.tfevents.1713969616.Aidas-MacBook.12169.0
++2024-04-24 10:41:57 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:41:58 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:41:59 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:00 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:01 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:02 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:03 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:04 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:04 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:04 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:05 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:06 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:07 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:08 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:09 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:42:10 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969714/events.out.tfevents.1713969717.Aidas-MacBook.12230.0
++2024-04-24 10:44:19 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:20 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:21 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:22 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:23 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:24 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:25 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:26 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:26 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:26 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:27 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:28 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:29 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:30 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:31 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 10:44:32 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713969856/events.out.tfevents.1713969859.Aidas-MacBook.12307.0
++2024-04-24 11:04:34 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971071/events.out.tfevents.1713971074.Aidas-MacBook.12510.0
++2024-04-24 11:04:35 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971071/events.out.tfevents.1713971074.Aidas-MacBook.12510.0
++2024-04-24 11:04:36 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971071/events.out.tfevents.1713971074.Aidas-MacBook.12510.0
++2024-04-24 11:04:36 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971071/events.out.tfevents.1713971074.Aidas-MacBook.12510.0
++2024-04-24 11:04:36 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971071/events.out.tfevents.1713971074.Aidas-MacBook.12510.0
++2024-04-24 11:04:37 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971071/events.out.tfevents.1713971074.Aidas-MacBook.12510.0
++2024-04-24 11:04:38 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971071/events.out.tfevents.1713971074.Aidas-MacBook.12510.0
++2024-04-24 11:04:39 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971071/events.out.tfevents.1713971074.Aidas-MacBook.12510.0
++2024-04-24 11:04:40 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971071/events.out.tfevents.1713971074.Aidas-MacBook.12510.0
++2024-04-24 11:04:41 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971071/events.out.tfevents.1713971074.Aidas-MacBook.12510.0
++2024-04-24 11:05:03 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:04 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:05 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:06 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:07 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:08 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:09 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:10 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:11 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:12 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:12 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:12 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:13 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:14 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:15 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:16 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:17 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971101/events.out.tfevents.1713971103.Aidas-MacBook.12542.0
++2024-04-24 11:05:54 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:05:55 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:05:56 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:05:57 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:05:58 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:05:59 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:06:00 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:06:01 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:06:02 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:06:03 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:06:03 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:06:03 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:06:04 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:06:05 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:06:06 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:06:07 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:06:08 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971151/events.out.tfevents.1713971154.Aidas-MacBook.12600.0
++2024-04-24 11:06:31 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:32 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:33 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:34 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:35 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:36 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:37 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:38 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:38 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:38 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:39 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:40 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:41 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:42 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:43 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:06:44 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971188/events.out.tfevents.1713971191.Aidas-MacBook.12651.0
++2024-04-24 11:07:13 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:14 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:15 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:16 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:17 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:18 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:19 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:20 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:21 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:22 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:22 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:22 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:23 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:24 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:25 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:26 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:27 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971230/events.out.tfevents.1713971233.Aidas-MacBook.12721.0
++2024-04-24 11:07:47 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:48 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:50 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:51 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:52 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:53 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:54 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:55 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:56 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:56 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:56 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:57 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:58 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:07:59 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:08:00 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:08:01 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
++2024-04-24 11:08:02 INFO No path found after runs/PPO_Pendulum-v1_default_network_1_1713971264/events.out.tfevents.1713971267.Aidas-MacBook.12765.0
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index d4ed6f6..9e87dd5 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20240423_202847-9gtp2rpe/logs/debug-internal.log
+\ No newline at end of file
++run-20240424_110837-74zjdlbh/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index feeb4c1..3e5180f 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20240423_202847-9gtp2rpe/logs/debug.log
+\ No newline at end of file
++run-20240424_110837-74zjdlbh/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index 9dc540a..1803cd6 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20240423_202847-9gtp2rpe
+\ No newline at end of file
++run-20240424_110837-74zjdlbh
+\ No newline at end of file

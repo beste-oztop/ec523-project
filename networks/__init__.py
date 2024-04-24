@@ -87,7 +87,7 @@ class WiderQNetwork(nn.Module):
 
 
 # Agent network implementation for PPO
-class AgentPPO(nn.Module):
+class PPONetwork(nn.Module):
     def __init__(self, envs):
         super().__init__()
         self.critic = nn.Sequential(

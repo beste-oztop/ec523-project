@@ -1,0 +1,849 @@
+diff --git a/algorithms/DQN.py b/algorithms/DQN.py
+index d9f0ba0..3b610c3 100644
+--- a/algorithms/DQN.py
++++ b/algorithms/DQN.py
+@@ -10,8 +10,7 @@ import torch.optim as optim
+ from buffers import ReplayBuffer
+ # from stable_baselines3.common.buffers import ReplayBuffer
+ 
+-from networks import QNetwork
+-
++from networks import QNetwork, WiderQNetwork, DeeperQNetwork
+ 
+ 
+ def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
+@@ -30,10 +29,20 @@ class DQN():
+         torch.backends.cudnn.deterministic = args.torch_deterministic
+ 
+         self.device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
+-        self.q_network = QNetwork(envs).to(self.device)
++        self.q_network = None
++        self.target_network = None
++        if args.network_mode == "default":
++            self.q_network = QNetwork(envs).to(self.device)
++            self.target_network = QNetwork(envs).to(self.device)
++        elif args.network_mode == "deeper":
++            self.q_network = DeeperQNetwork(envs).to(self.device)
++            self.target_network = DeeperQNetwork(envs).to(self.device)
++        elif args.network_mode == "wider":
++            self.q_network = WiderQNetwork(envs).to(self.device)
++            self.target_network = WiderQNetwork(envs).to(self.device)
++
+         self.optimizer = optim.Adam(self.q_network.parameters(), lr=args.learning_rate)
+-        self.target_network = QNetwork(envs).to(self.device)
+-        self.target_network.load_state_dict(self.q_network.state_dict())
++        self.target_network.load_state_dict(self.q_network.state_dict(), strict=False)
+         self.envs = envs
+ 
+         self.writer = writer
+diff --git a/algorithms/__pycache__/DQN.cpython-39.pyc b/algorithms/__pycache__/DQN.cpython-39.pyc
+index e714e50..ebcf136 100644
+Binary files a/algorithms/__pycache__/DQN.cpython-39.pyc and b/algorithms/__pycache__/DQN.cpython-39.pyc differ
+diff --git a/code/wandb/run-20240403_181914-pds1tmyw/logs/debug-internal.log b/code/wandb/run-20240403_181914-pds1tmyw/logs/debug-internal.log
+index 700c49f..0576bfa 100644
+--- a/code/wandb/run-20240403_181914-pds1tmyw/logs/debug-internal.log
++++ b/code/wandb/run-20240403_181914-pds1tmyw/logs/debug-internal.log
+@@ -29419,3 +29419,21 @@ _info {
+ 2024-04-03 19:54:53,319 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x11a3e3100>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
+ 2024-04-03 19:55:02,964 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x11a3e3820>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
+ 2024-04-03 20:11:42,705 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1182f4610>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 00:51:43,392 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 00:51:45,771 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x11a3e36a0>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 00:51:50,752 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x111397f70>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 09:04:08,598 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 09:04:10,649 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1182bf6d0>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 09:04:15,296 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x11a3d0fa0>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 10:17:48,971 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 10:17:51,353 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1182f4340>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 10:17:55,461 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1181f82e0>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 10:23:25,561 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1182f4730>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 12:41:36,726 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 12:41:39,203 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1182c8a60>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 12:41:43,519 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1181f8d60>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 13:31:40,193 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 13:52:27,448 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 14:22:48,878 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 15:02:00,232 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 16:11:43,433 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Read timed out. (read timeout=180.0). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
+diff --git a/main.py b/main.py
+index a57a1b7..e1b8bb2 100644
+--- a/main.py
++++ b/main.py
+@@ -14,34 +14,39 @@ from algorithms.DQN import DQN
+ 
+ @dataclass
+ class Args:
++    exp_name: str = os.path.basename(__file__)[: -len(".py")]
++    """the name of this experiment"""
+     available_algs = ["DQN", "PPO"]
+     """list of all available RL algorithms"""
+     alg_name: str = "DQN"
+     """ name of the algorithm"""
+-    exp_name: str = os.path.basename(__file__)[: -len(".py")]
+-    """the name of this experiment"""
++    available_network_modes = ["default", "deeper", "wider"]
++    """list of all available network mode"""
++    network_mode = "deeper"
++    """the active network mode"""
++
+     seed: int = 1
+     """seed of the experiment"""
+     torch_deterministic: bool = True
+     """if toggled, `torch.backends.cudnn.deterministic=False`"""
+     cuda: bool = True
+     """if toggled, cuda will be enabled by default"""
++
+     track: bool = True
+     """if toggled, this experiment will be tracked with Weights and Biases"""
+     wandb_project_name: str = f"ec523"
+     """the wandb's project name"""
+     wandb_entity: str = None
+     """the entity (team) of wandb's project"""
+-    capture_video: bool = True
++    capture_video: bool = False
+     """whether to capture videos of the agent performances (check out `videos` folder)"""
+     save_model: bool = False
+     """whether to save model into the `runs/{run_name}` folder"""
+     upload_model: bool = False
+     """whether to upload the saved model to huggingface"""
+ 
+-
+     # Algorithm specific arguments
+-    env_id: str = "MiniGrid-Empty-5x5-v0"
++    env_id: str = "Acrobot-v1"
+     """the id of the environment"""
+     total_timesteps: int = 500000
+     """total timesteps of the experiments"""
+@@ -91,7 +96,7 @@ if __name__ == '__main__':
+ 
+ 
+     args = tyro.cli(Args)
+-    run_name = f"{args.alg_name}_{args.env_id}_{args.seed}_{int(time.time())}"
++    run_name = f"{args.alg_name}_{args.env_id}_{args.network_mode}_network_{args.seed}_{int(time.time())}"
+ 
+     if args.track:
+         import wandb
+diff --git a/networks/__init__.py b/networks/__init__.py
+index b6ae9b2..f8c053e 100644
+--- a/networks/__init__.py
++++ b/networks/__init__.py
+@@ -19,3 +19,45 @@ class QNetwork(nn.Module):
+         # Reshape input tensor to match the expected shape of the first linear layer
+         x = x.view(-1, self.input_shape)
+         return self.network(x)
++
++
++class DeeperQNetwork(nn.Module):
++    def __init__(self, env):
++        super().__init__()
++        self.input_shape = np.array(env.single_observation_space.shape).prod()
++        self.network = nn.Sequential(
++            nn.Linear(np.array(env.single_observation_space.shape).prod(), 120).float(),
++            nn.ReLU(),
++            nn.Linear(120, 84).float(),
++            nn.ReLU(),
++            nn.Linear(84, 84).float(),
++            nn.ReLU(),
++            nn.Linear(84, env.single_action_space.n).float(),
++        )
++
++    def forward(self, x):
++        # Convert input tensor to float
++        x = x.float()
++        # Reshape input tensor to match the expected shape of the first linear layer
++        x = x.view(-1, self.input_shape)
++        return self.network(x)
++
++
++class WiderQNetwork(nn.Module):
++    def __init__(self, env):
++        super().__init__()
++        self.input_shape = np.array(env.single_observation_space.shape).prod()
++        self.network = nn.Sequential(
++            nn.Linear(np.array(env.single_observation_space.shape).prod(), 120).float(),
++            nn.ReLU(),
++            nn.Linear(120, 168).float(),
++        )
++
++    def forward(self, x):
++        # Convert input tensor to float
++        x = x.float()
++        # Reshape input tensor to match the expected shape of the first linear layer
++        x = x.view(-1, self.input_shape)
++        return self.network(x)
++
++
+diff --git a/networks/__pycache__/__init__.cpython-39.pyc b/networks/__pycache__/__init__.cpython-39.pyc
+index c3ec36b..eb700bf 100644
+Binary files a/networks/__pycache__/__init__.cpython-39.pyc and b/networks/__pycache__/__init__.cpython-39.pyc differ
+diff --git a/networks/network.py b/networks/network.py
+index 504860f..139597f 100644
+--- a/networks/network.py
++++ b/networks/network.py
+@@ -1,16 +1,2 @@
+-import torch.nn as nn
+ 
+ 
+-class QNetwork(nn.Module):
+-    def __init__(self, env):
+-        super().__init__()
+-        self.network = nn.Sequential(
+-            nn.Linear(np.array(env.single_observation_space.shape).prod(), 120),
+-            nn.ReLU(),
+-            nn.Linear(120, 84),
+-            nn.ReLU(),
+-            nn.Linear(84, env.single_action_space.n),
+-        )
+-
+-    def forward(self, x):
+-        return self.network(x)
+diff --git a/wandb/debug-cli.aida.log b/wandb/debug-cli.aida.log
+index 3d62693..5dabe09 100644
+--- a/wandb/debug-cli.aida.log
++++ b/wandb/debug-cli.aida.log
+@@ -25,3 +25,618 @@
+ 2024-04-03 20:38:04 INFO No path found after runs/DQN_MiniGrid-Empty-5x5-v0_1_1712191078/events.out.tfevents.1712191080.Aidas-MacBook.54087.0
+ 2024-04-03 20:38:05 INFO No path found after runs/DQN_MiniGrid-Empty-5x5-v0_1_1712191078/events.out.tfevents.1712191080.Aidas-MacBook.54087.0
+ 2024-04-03 20:38:06 INFO No path found after runs/DQN_MiniGrid-Empty-5x5-v0_1_1712191078/events.out.tfevents.1712191080.Aidas-MacBook.54087.0
++2024-04-04 14:29:27 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:29 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:30 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:31 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:32 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:33 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:34 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 15:03:35 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:36 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:37 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:38 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:39 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:41 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:42 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:43 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:44 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:45 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 15:03:46 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712257412/events.out.tfevents.1712257414.Aidas-MacBook.56557.0
++2024-04-04 16:12:50 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:12:51 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:12:52 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:12:53 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:12:54 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:12:55 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:12:56 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:12:56 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:12:56 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:12:57 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:12:58 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:12:59 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:13:00 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:13:01 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261567/events.out.tfevents.1712261570.Aidas-MacBook.56769.0
++2024-04-04 16:17:57 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261874/events.out.tfevents.1712261877.Aidas-MacBook.56832.0
++2024-04-04 16:17:57 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261874/events.out.tfevents.1712261877.Aidas-MacBook.56832.0
++2024-04-04 16:17:57 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261874/events.out.tfevents.1712261877.Aidas-MacBook.56832.0
++2024-04-04 16:17:58 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261874/events.out.tfevents.1712261877.Aidas-MacBook.56832.0
++2024-04-04 16:17:59 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261874/events.out.tfevents.1712261877.Aidas-MacBook.56832.0
++2024-04-04 16:18:00 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261874/events.out.tfevents.1712261877.Aidas-MacBook.56832.0
++2024-04-04 16:18:01 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261874/events.out.tfevents.1712261877.Aidas-MacBook.56832.0
++2024-04-04 16:18:02 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261874/events.out.tfevents.1712261877.Aidas-MacBook.56832.0
++2024-04-04 16:18:03 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712261874/events.out.tfevents.1712261877.Aidas-MacBook.56832.0
++2024-04-04 16:24:37 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:38 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:39 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:41 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:42 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:43 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:44 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:45 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:46 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:47 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:48 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:48 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:48 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:49 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:50 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:51 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:52 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:24:53 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262273/events.out.tfevents.1712262277.Aidas-MacBook.56953.0
++2024-04-04 16:27:09 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262426/events.out.tfevents.1712262429.Aidas-MacBook.57028.0
++2024-04-04 16:27:10 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262426/events.out.tfevents.1712262429.Aidas-MacBook.57028.0
++2024-04-04 16:27:10 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262426/events.out.tfevents.1712262429.Aidas-MacBook.57028.0
++2024-04-04 16:27:10 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262426/events.out.tfevents.1712262429.Aidas-MacBook.57028.0
++2024-04-04 16:27:11 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262426/events.out.tfevents.1712262429.Aidas-MacBook.57028.0
++2024-04-04 16:27:12 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262426/events.out.tfevents.1712262429.Aidas-MacBook.57028.0
++2024-04-04 16:27:13 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262426/events.out.tfevents.1712262429.Aidas-MacBook.57028.0
++2024-04-04 16:27:14 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262426/events.out.tfevents.1712262429.Aidas-MacBook.57028.0
++2024-04-04 16:27:15 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262426/events.out.tfevents.1712262429.Aidas-MacBook.57028.0
++2024-04-04 16:27:16 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262426/events.out.tfevents.1712262429.Aidas-MacBook.57028.0
++2024-04-04 16:28:50 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:28:51 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:28:52 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:28:53 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:28:54 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:28:55 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:28:56 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:28:58 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:28:59 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:00 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:01 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:02 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:03 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:04 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:05 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:06 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:07 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:08 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:09 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:10 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:11 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:12 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:13 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:14 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:15 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:16 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:17 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:18 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:19 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:20 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:21 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:22 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:23 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:24 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:25 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:26 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:27 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:29 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:30 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:31 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:32 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:33 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:34 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:35 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:36 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:37 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:38 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:39 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:41 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:42 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:43 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:44 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:45 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:46 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:47 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:48 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:49 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:50 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:51 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:52 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:53 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:54 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:55 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:56 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:57 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:58 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:29:59 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:00 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:01 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:02 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:03 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:04 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:05 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:06 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:07 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:08 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:09 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:10 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:11 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:12 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:13 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:14 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:15 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:16 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:17 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:18 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:19 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:20 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:21 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:22 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:23 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:24 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:25 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:26 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:27 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:29 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:30 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:31 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:32 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:33 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:34 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:35 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:36 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:37 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:38 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:39 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:41 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:42 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:43 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:44 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:45 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:46 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:47 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:48 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:49 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:50 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:51 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:52 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:53 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:54 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:55 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:56 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:57 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:58 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:30:59 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:00 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:01 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:02 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:03 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:04 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:05 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:06 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:07 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:08 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:09 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:10 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:11 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:12 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:13 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:14 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:15 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:16 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:17 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:18 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:19 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:20 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:21 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:22 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:23 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:24 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:25 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:26 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:27 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:29 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:30 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:31 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:32 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:33 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:34 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:35 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:36 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:37 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:38 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:39 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:41 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:42 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:43 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:44 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:45 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:46 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:47 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:48 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:49 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:50 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:51 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:52 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:53 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:54 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:55 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:56 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:57 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:58 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:31:59 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:01 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:02 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:03 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:04 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:05 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:06 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:07 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:08 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:09 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:10 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:11 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:12 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:13 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:14 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:15 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:16 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:17 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:18 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:19 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:20 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:21 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:22 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:23 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:24 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:25 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:26 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:27 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:29 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:30 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:31 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:32 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:33 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:34 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:35 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:36 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:37 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:38 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:39 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:41 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:42 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:43 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:44 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:45 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:46 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:47 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:48 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:49 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:50 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:51 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:52 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:53 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:54 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:55 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:56 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:57 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:58 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:32:59 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:00 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:01 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:02 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:03 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:04 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:05 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:06 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:07 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:08 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:09 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:10 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:11 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:12 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:13 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:14 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:15 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:16 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:17 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:18 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:19 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:20 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:21 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:22 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:23 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:24 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:25 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:26 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:27 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:29 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:30 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:31 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:32 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:33 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:34 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:35 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:36 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:37 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:38 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:39 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:41 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:42 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:43 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:44 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:45 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:46 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:47 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:48 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:49 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:50 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:51 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:52 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:53 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:54 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:55 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:56 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:57 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:58 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:33:59 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:00 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:01 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:02 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:03 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:04 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:05 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:06 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:07 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:08 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:09 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:10 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:11 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:12 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:13 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:14 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:15 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:16 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:17 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:18 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:19 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:20 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:21 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:22 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:23 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:24 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:25 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:26 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:27 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:29 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:30 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:31 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:32 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:33 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:34 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:35 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:36 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:37 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:38 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:39 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:41 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:42 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:43 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:44 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:45 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:46 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:47 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:48 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:49 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:50 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:51 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:52 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:53 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:54 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:55 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:56 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:57 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:58 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:34:59 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:00 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:01 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:02 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:03 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:04 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:05 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:06 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:07 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:08 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:09 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:10 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:11 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:12 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:13 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:14 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:15 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:16 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:17 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:18 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:19 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:20 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:21 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:22 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:23 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:24 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:25 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:26 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:27 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:29 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:30 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:31 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:32 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:33 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:34 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:35 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:36 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:37 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:39 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:41 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:42 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:43 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:44 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:45 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:46 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:47 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:48 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:49 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:50 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:51 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:52 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:53 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:54 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:55 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:56 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:57 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:58 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:35:59 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:00 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:01 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:02 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:03 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:04 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:05 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:06 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:07 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:08 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:09 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:10 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:11 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:12 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:13 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:14 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:15 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:16 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:17 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:18 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:19 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:20 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:21 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:22 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:23 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:24 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:25 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:26 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:27 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:29 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:30 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:31 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:32 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:33 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:34 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:35 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:36 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:37 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:38 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:39 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:41 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:42 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:43 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:44 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:45 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:46 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:47 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:48 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:49 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:50 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:51 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:52 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:53 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:54 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:55 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:56 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:57 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:58 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:36:59 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:00 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:01 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:02 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:03 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:04 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:05 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:06 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:07 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:08 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:09 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:10 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:11 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:12 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:13 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:14 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:15 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:16 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:17 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:18 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:19 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:20 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:21 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:22 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:23 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:24 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:25 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:26 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:27 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:29 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:30 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:31 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:32 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:33 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:34 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:35 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:36 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:37 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:38 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:39 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:40 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:41 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:42 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:43 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:44 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:45 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:46 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:47 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:48 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:49 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:50 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
++2024-04-04 16:37:51 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712262528/events.out.tfevents.1712262530.Aidas-MacBook.57096.0
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index 1eb41c6..e9d5b32 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20240403_203759-1l1nya5x/logs/debug-internal.log
+\ No newline at end of file
++run-20240404_163832-v0yjrinz/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index f531bc6..36f3ce8 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20240403_203759-1l1nya5x/logs/debug.log
+\ No newline at end of file
++run-20240404_163832-v0yjrinz/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index 8bd1143..28b2382 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20240403_203759-1l1nya5x
+\ No newline at end of file
++run-20240404_163832-v0yjrinz
+\ No newline at end of file

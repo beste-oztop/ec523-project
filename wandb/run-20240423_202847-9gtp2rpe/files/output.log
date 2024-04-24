@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 130, in <module>
+    dqn_agent = PPO(envs, writer, args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 31, in __init__
+    self.optimizer = optim.Adam(self.q_network.parameters(), lr=args.learning_rate)
+AttributeError: 'PPO' object has no attribute 'q_network'

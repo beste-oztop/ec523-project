@@ -28,20 +28,14 @@ class PPO():
 
         self.device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
 
-        self.optimizer = optim.Adam(self.q_network.parameters(), lr=args.learning_rate)
         self.envs = envs
         self.writer = writer
         self.agent = AgentPPO(envs).to(self.device)
+        self.optimizer = optim.Adam(self.q_network.parameters(), lr=args.learning_rate)
+
 
         self.start_time = time.time()
 
-        self.replay_buffer = ReplayBuffer(
-            args.buffer_size,
-            envs.single_observation_space,
-            envs.single_action_space,
-            self.device,
-            handle_timeout_termination=False,
-        )
 
     
     def environment_interaction(self,args):

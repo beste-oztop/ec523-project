@@ -1,0 +1,105 @@
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262528/rl-video-episode-0.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262528/rl-video-episode-0.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262528/rl-video-episode-0.mp4
+global_step=499, episodic_return=[-500.]
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262528/rl-video-episode-1.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262528/rl-video-episode-1.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262528/rl-video-episode-1.mp4
+global_step=999, episodic_return=[-500.]
+global_step=1499, episodic_return=[-500.]
+global_step=1999, episodic_return=[-500.]
+global_step=2499, episodic_return=[-500.]
+global_step=2999, episodic_return=[-500.]
+global_step=3499, episodic_return=[-500.]
+global_step=3999, episodic_return=[-500.]
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262528/rl-video-episode-8.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262528/rl-video-episode-8.mp4
+t:  23%|██▎       | 116/501 [00:00<00:00, 575.00it/s, now=None]
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262528/rl-video-episode-8.mp4
+global_step=4499, episodic_return=[-500.]
+global_step=4999, episodic_return=[-500.]
+global_step=5499, episodic_return=[-500.]
+global_step=5999, episodic_return=[-500.]
+global_step=6499, episodic_return=[-500.]
+global_step=6999, episodic_return=[-500.]
+global_step=7499, episodic_return=[-500.]
+global_step=7999, episodic_return=[-500.]
+global_step=8499, episodic_return=[-500.]
+global_step=8999, episodic_return=[-500.]
+global_step=9499, episodic_return=[-500.]
+global_step=9999, episodic_return=[-500.]
+/Users/aida/PycharmProjects/ec523-project/ec523-project/buffers/__init__.py:32: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/utils/tensor_new.cpp:278.)
+  obs_batch = torch.tensor(obs_batch, device=self.device, dtype=torch.float)
+global_step=10999, episodic_return=[-500.]
+global_step=11499, episodic_return=[-500.]
+global_step=11999, episodic_return=[-500.]
+global_step=12499, episodic_return=[-500.]
+global_step=12999, episodic_return=[-500.]
+global_step=13499, episodic_return=[-500.]
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262528/rl-video-episode-27.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262528/rl-video-episode-27.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262528/rl-video-episode-27.mp4
+global_step=13999, episodic_return=[-500.]
+global_step=14499, episodic_return=[-500.]
+global_step=14999, episodic_return=[-500.]
+global_step=15499, episodic_return=[-500.]
+global_step=15999, episodic_return=[-500.]
+global_step=16499, episodic_return=[-500.]
+global_step=16999, episodic_return=[-500.]
+global_step=17499, episodic_return=[-500.]
+global_step=17999, episodic_return=[-500.]
+global_step=18499, episodic_return=[-500.]
+global_step=18950, episodic_return=[-450.]
+global_step=19450, episodic_return=[-500.]
+global_step=19950, episodic_return=[-500.]
+global_step=20450, episodic_return=[-500.]
+global_step=20950, episodic_return=[-500.]
+global_step=21450, episodic_return=[-500.]
+global_step=21950, episodic_return=[-500.]
+global_step=22450, episodic_return=[-500.]
+global_step=22950, episodic_return=[-500.]
+global_step=23450, episodic_return=[-500.]
+global_step=23950, episodic_return=[-500.]
+global_step=24450, episodic_return=[-500.]
+global_step=24950, episodic_return=[-500.]
+global_step=25450, episodic_return=[-500.]
+global_step=25950, episodic_return=[-500.]
+global_step=26450, episodic_return=[-500.]
+global_step=26950, episodic_return=[-500.]
+global_step=27450, episodic_return=[-500.]
+global_step=27950, episodic_return=[-500.]
+global_step=28345, episodic_return=[-394.]
+global_step=28845, episodic_return=[-500.]
+global_step=29345, episodic_return=[-500.]
+global_step=29845, episodic_return=[-500.]
+global_step=30345, episodic_return=[-500.]
+global_step=30845, episodic_return=[-500.]
+global_step=31345, episodic_return=[-500.]
+global_step=31845, episodic_return=[-500.]
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 126, in <module>
+    dqn_agent.execute(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/DQN.py", line 122, in execute
+    next_obs, rewards, terminations, truncations, infos = self.envs.step(actions)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/vector/vector_env.py", line 204, in step
+    return self.step_wait()
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/vector/sync_vector_env.py", line 149, in step_wait
+    ) = env.step(action)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/wrappers/record_episode_statistics.py", line 94, in step
+    ) = self.env.step(action)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/wrappers/record_video.py", line 183, in step
+    self.video_recorder.capture_frame()
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/wrappers/monitoring/video_recorder.py", line 113, in capture_frame
+    frame = self.env.render()
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/core.py", line 471, in render
+    return self.env.render()
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/wrappers/order_enforcing.py", line 70, in render
+    return self.env.render(*args, **kwargs)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/wrappers/env_checker.py", line 67, in render
+    return self.env.render(*args, **kwargs)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/envs/classic_control/acrobot.py", line 356, in render
+    gfxdraw.aapolygon(surf, transformed_coords, (0, 204, 204))

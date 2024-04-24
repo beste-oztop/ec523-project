@@ -1,0 +1,46 @@
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262273/rl-video-episode-0.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262273/rl-video-episode-0.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262273/rl-video-episode-0.mp4
+global_step=499, episodic_return=[-500.]
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262273/rl-video-episode-1.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262273/rl-video-episode-1.mp4
+t:  79%|███████▉  | 395/501 [00:00<00:00, 690.81it/s, now=None]
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262273/rl-video-episode-1.mp4
+global_step=999, episodic_return=[-500.]
+global_step=1499, episodic_return=[-500.]
+global_step=1999, episodic_return=[-500.]
+global_step=2499, episodic_return=[-500.]
+global_step=2999, episodic_return=[-500.]
+global_step=3499, episodic_return=[-500.]
+global_step=3999, episodic_return=[-500.]
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262273/rl-video-episode-8.mp4.
+
+t:   0%|          | 0/501 [00:00<?, ?it/s, now=None]
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/DQN_Acrobot-v1_deeper_network_1_1712262273/rl-video-episode-8.mp4
+global_step=4499, episodic_return=[-500.]
+global_step=4999, episodic_return=[-500.]
+global_step=5499, episodic_return=[-500.]
+global_step=5999, episodic_return=[-500.]
+global_step=6499, episodic_return=[-500.]
+global_step=6999, episodic_return=[-500.]
+global_step=7499, episodic_return=[-500.]
+global_step=7999, episodic_return=[-500.]
+global_step=8499, episodic_return=[-500.]
+global_step=8999, episodic_return=[-500.]
+global_step=9499, episodic_return=[-500.]
+/Users/aida/PycharmProjects/ec523-project/ec523-project/buffers/__init__.py:32: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/utils/tensor_new.cpp:278.)
+  obs_batch = torch.tensor(obs_batch, device=self.device, dtype=torch.float)
+global_step=10499, episodic_return=[-500.]
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 126, in <module>
+    dqn_agent.execute(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/DQN.py", line 136, in execute
+    self.train_networks(global_step, args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/DQN.py", line 75, in train_networks
+    self.update_target_network(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/DQN.py", line 109, in update_target_network
+    args.tau * q_network_param.data + (1.0 - args.tau) * target_network_param.data
+RuntimeError: The size of tensor a (84) must match the size of tensor b (3) at non-singleton dimension 0

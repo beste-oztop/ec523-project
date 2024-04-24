@@ -1,0 +1,1 @@
+{"videos": {"_type": "video-file", "sha256": "1293e6eacccb45cafa6f0e16fec664413e42697457ccbf3b4f90af96cdc25f55", "size": 420191, "path": "media/videos/videos_0_1293e6eacccb45cafa6f.mp4"}, "_timestamp": 1712261575.34058, "_runtime": 5.387593030929565, "_step": 2, "_wandb": {"runtime": 5}, "global_step": 499, "charts/episodic_return": -500.0, "charts/episodic_length": 500.0}

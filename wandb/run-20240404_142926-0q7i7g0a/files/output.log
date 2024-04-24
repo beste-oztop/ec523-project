@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 125, in <module>
+    dqn_agent = DQN(envs, writer, args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/DQN.py", line 42, in __init__
+    self.target_network.load_state_dict(self.q_network.state_dict())
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/torch/nn/modules/module.py", line 2153, in load_state_dict
+    raise RuntimeError('Error(s) in loading state_dict for {}:\n\t{}'.format(
+RuntimeError: Error(s) in loading state_dict for QNetwork:
+	Unexpected key(s) in state_dict: "network.6.weight", "network.6.bias", "network.8.weight", "network.8.bias".

@@ -1,0 +1,240 @@
+diff --git a/algorithms/DQN.py b/algorithms/DQN.py
+index d9f0ba0..d1a9eb5 100644
+--- a/algorithms/DQN.py
++++ b/algorithms/DQN.py
+@@ -10,8 +10,7 @@ import torch.optim as optim
+ from buffers import ReplayBuffer
+ # from stable_baselines3.common.buffers import ReplayBuffer
+ 
+-from networks import QNetwork
+-
++from networks import QNetwork, WiderQNetwork, DeeperQNetwork
+ 
+ 
+ def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
+@@ -30,10 +29,17 @@ class DQN():
+         torch.backends.cudnn.deterministic = args.torch_deterministic
+ 
+         self.device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
+-        self.q_network = QNetwork(envs).to(self.device)
++        self.q_network = None
++        if args.network_mode == "default":
++            self.q_network = QNetwork(envs).to(self.device)
++        elif args.network_mode == "deeper":
++            self.q_network = DeeperQNetwork(envs).to(self.device)
++        elif args.network_mode == "wider":
++            self.q_network = WiderQNetwork(envs).to(self.device)
++
+         self.optimizer = optim.Adam(self.q_network.parameters(), lr=args.learning_rate)
+         self.target_network = QNetwork(envs).to(self.device)
+-        self.target_network.load_state_dict(self.q_network.state_dict())
++        self.target_network.load_state_dict(self.q_network.state_dict(), strict=False)
+         self.envs = envs
+ 
+         self.writer = writer
+diff --git a/algorithms/__pycache__/DQN.cpython-39.pyc b/algorithms/__pycache__/DQN.cpython-39.pyc
+index e714e50..524ee38 100644
+Binary files a/algorithms/__pycache__/DQN.cpython-39.pyc and b/algorithms/__pycache__/DQN.cpython-39.pyc differ
+diff --git a/code/wandb/run-20240403_181914-pds1tmyw/logs/debug-internal.log b/code/wandb/run-20240403_181914-pds1tmyw/logs/debug-internal.log
+index 700c49f..3a388f2 100644
+--- a/code/wandb/run-20240403_181914-pds1tmyw/logs/debug-internal.log
++++ b/code/wandb/run-20240403_181914-pds1tmyw/logs/debug-internal.log
+@@ -29419,3 +29419,20 @@ _info {
+ 2024-04-03 19:54:53,319 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x11a3e3100>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
+ 2024-04-03 19:55:02,964 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x11a3e3820>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
+ 2024-04-03 20:11:42,705 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1182f4610>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 00:51:43,392 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 00:51:45,771 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x11a3e36a0>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 00:51:50,752 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x111397f70>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 09:04:08,598 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 09:04:10,649 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1182bf6d0>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 09:04:15,296 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x11a3d0fa0>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 10:17:48,971 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 10:17:51,353 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1182f4340>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 10:17:55,461 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1181f82e0>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 10:23:25,561 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1182f4730>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 12:41:36,726 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 12:41:39,203 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1182c8a60>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 12:41:43,519 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/aidaafshar/cleanRL/pds1tmyw/file_stream (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x1181f8d60>: Failed to resolve 'api.wandb.ai' ([Errno 8] nodename nor servname provided, or not known)")). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 13:31:40,193 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 13:52:27,448 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 14:22:48,878 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
++2024-04-04 15:02:00,232 WARNING FileStreamThread:51321 [file_stream.py:request_with_retry():687] requests_with_retry encountered retryable exception: ('Connection aborted.', TimeoutError(60, 'Operation timed out')). func: functools.partial(<bound method Session.post of <requests.sessions.Session object at 0x11107f1f0>>, timeout=180.0), args: ('https://api.wandb.ai/files/aidaafshar/cleanRL/pds1tmyw/file_stream',), kwargs: {'json': {'complete': False, 'failed': False, 'dropped': 0, 'uploaded': []}}
+diff --git a/main.py b/main.py
+index a57a1b7..d8057c5 100644
+--- a/main.py
++++ b/main.py
+@@ -14,18 +14,24 @@ from algorithms.DQN import DQN
+ 
+ @dataclass
+ class Args:
++    exp_name: str = os.path.basename(__file__)[: -len(".py")]
++    """the name of this experiment"""
+     available_algs = ["DQN", "PPO"]
+     """list of all available RL algorithms"""
+     alg_name: str = "DQN"
+     """ name of the algorithm"""
+-    exp_name: str = os.path.basename(__file__)[: -len(".py")]
+-    """the name of this experiment"""
++    available_network_modes = ["default", "deeper", "wider"]
++    """list of all available network mode"""
++    network_mode = "deeper"
++    """the active network mode"""
++
+     seed: int = 1
+     """seed of the experiment"""
+     torch_deterministic: bool = True
+     """if toggled, `torch.backends.cudnn.deterministic=False`"""
+     cuda: bool = True
+     """if toggled, cuda will be enabled by default"""
++
+     track: bool = True
+     """if toggled, this experiment will be tracked with Weights and Biases"""
+     wandb_project_name: str = f"ec523"
+@@ -39,9 +45,8 @@ class Args:
+     upload_model: bool = False
+     """whether to upload the saved model to huggingface"""
+ 
+-
+     # Algorithm specific arguments
+-    env_id: str = "MiniGrid-Empty-5x5-v0"
++    env_id: str = "Acrobot-v1"
+     """the id of the environment"""
+     total_timesteps: int = 500000
+     """total timesteps of the experiments"""
+@@ -91,7 +96,7 @@ if __name__ == '__main__':
+ 
+ 
+     args = tyro.cli(Args)
+-    run_name = f"{args.alg_name}_{args.env_id}_{args.seed}_{int(time.time())}"
++    run_name = f"{args.alg_name}_{args.env_id}_{args.network_mode}_network_{args.seed}_{int(time.time())}"
+ 
+     if args.track:
+         import wandb
+diff --git a/networks/__init__.py b/networks/__init__.py
+index b6ae9b2..2a32b88 100644
+--- a/networks/__init__.py
++++ b/networks/__init__.py
+@@ -19,3 +19,53 @@ class QNetwork(nn.Module):
+         # Reshape input tensor to match the expected shape of the first linear layer
+         x = x.view(-1, self.input_shape)
+         return self.network(x)
++
++
++class DeeperQNetwork(nn.Module):
++    def __init__(self, env):
++        super().__init__()
++        self.input_shape = np.array(env.single_observation_space.shape).prod()
++        self.network = nn.Sequential(
++            nn.Linear(np.array(env.single_observation_space.shape).prod(), 120).float(),
++            nn.ReLU(),
++            nn.Linear(120, 84).float(),
++            nn.ReLU(),
++            nn.Linear(84, env.single_action_space.n).float(),
++            nn.ReLU(),
++            nn.Linear(84, env.single_action_space.n).float(),
++            nn.ReLU(),
++            nn.Linear(84, env.single_action_space.n).float(),
++        )
++
++    def forward(self, x):
++        # Convert input tensor to float
++        x = x.float()
++        # Reshape input tensor to match the expected shape of the first linear layer
++        x = x.view(-1, self.input_shape)
++        return self.network(x)
++
++
++class WiderQNetwork(nn.Module):
++    def __init__(self, env):
++        super().__init__()
++        self.input_shape = np.array(env.single_observation_space.shape).prod()
++        self.network = nn.Sequential(
++            nn.Linear(np.array(env.single_observation_space.shape).prod(), 120).float(),
++            nn.ReLU(),
++            nn.Linear(120, 168).float(),
++            nn.ReLU(),
++            nn.Linear(168, env.single_action_space.n).float(),
++            nn.ReLU(),
++            nn.Linear(168, env.single_action_space.n).float(),
++            nn.ReLU(),
++            nn.Linear(168, env.single_action_space.n).float(),
++        )
++
++    def forward(self, x):
++        # Convert input tensor to float
++        x = x.float()
++        # Reshape input tensor to match the expected shape of the first linear layer
++        x = x.view(-1, self.input_shape)
++        return self.network(x)
++
++
+diff --git a/networks/__pycache__/__init__.cpython-39.pyc b/networks/__pycache__/__init__.cpython-39.pyc
+index c3ec36b..c2b2fa5 100644
+Binary files a/networks/__pycache__/__init__.cpython-39.pyc and b/networks/__pycache__/__init__.cpython-39.pyc differ
+diff --git a/networks/network.py b/networks/network.py
+index 504860f..139597f 100644
+--- a/networks/network.py
++++ b/networks/network.py
+@@ -1,16 +1,2 @@
+-import torch.nn as nn
+ 
+ 
+-class QNetwork(nn.Module):
+-    def __init__(self, env):
+-        super().__init__()
+-        self.network = nn.Sequential(
+-            nn.Linear(np.array(env.single_observation_space.shape).prod(), 120),
+-            nn.ReLU(),
+-            nn.Linear(120, 84),
+-            nn.ReLU(),
+-            nn.Linear(84, env.single_action_space.n),
+-        )
+-
+-    def forward(self, x):
+-        return self.network(x)
+diff --git a/wandb/debug-cli.aida.log b/wandb/debug-cli.aida.log
+index 3d62693..6061a86 100644
+--- a/wandb/debug-cli.aida.log
++++ b/wandb/debug-cli.aida.log
+@@ -25,3 +25,13 @@
+ 2024-04-03 20:38:04 INFO No path found after runs/DQN_MiniGrid-Empty-5x5-v0_1_1712191078/events.out.tfevents.1712191080.Aidas-MacBook.54087.0
+ 2024-04-03 20:38:05 INFO No path found after runs/DQN_MiniGrid-Empty-5x5-v0_1_1712191078/events.out.tfevents.1712191080.Aidas-MacBook.54087.0
+ 2024-04-03 20:38:06 INFO No path found after runs/DQN_MiniGrid-Empty-5x5-v0_1_1712191078/events.out.tfevents.1712191080.Aidas-MacBook.54087.0
++2024-04-04 14:29:27 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:28 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:29 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:30 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:31 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:32 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:33 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
++2024-04-04 14:29:34 INFO No path found after runs/DQN_Acrobot-v1_deeper_network_1_1712255364/events.out.tfevents.1712255367.Aidas-MacBook.56378.0
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index 1eb41c6..0a2960c 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20240403_203759-1l1nya5x/logs/debug-internal.log
+\ No newline at end of file
++run-20240404_150334-69x5drvj/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index f531bc6..8c4e13f 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20240403_203759-1l1nya5x/logs/debug.log
+\ No newline at end of file
++run-20240404_150334-69x5drvj/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index 8bd1143..5343358 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20240403_203759-1l1nya5x
+\ No newline at end of file
++run-20240404_150334-69x5drvj
+\ No newline at end of file

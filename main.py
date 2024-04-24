@@ -19,7 +19,7 @@ class Args:
     """the name of this experiment"""
     available_algs = ["DQN", "PPO"]
     """list of all available RL algorithms"""
-    alg_name: str = "DQN"
+    alg_name: str = "PPO"
     """ name of the algorithm"""
     available_network_modes = ["default", "deeper", "wider", "mini"]
     """list of all available network mode"""
@@ -33,7 +33,7 @@ class Args:
     cuda: bool = True
     """if toggled, cuda will be enabled by default"""
 
-    track: bool = True
+    track: bool = False
     """if toggled, this experiment will be tracked with Weights and Biases"""
     wandb_project_name: str = f"ec523"
     """the wandb's project name"""
@@ -47,7 +47,7 @@ class Args:
     """whether to upload the saved model to huggingface"""
 
     # Algorithm specific arguments
-    env_id: str = "CartPole-v1"
+    env_id: str = "Humanoid-v4"
     """the id of the environment"""
     total_timesteps: int = 500000
     """total timesteps of the experiments"""
@@ -77,17 +77,34 @@ class Args:
     """the frequency of training"""
 
 
-def make_env(env_id, seed, idx, capture_video, run_name):
+def make_env(env_id, seed, idx, capture_video, run_name, args):
     def thunk():
-        if capture_video and idx == 0:
-            env = gym.make(env_id, render_mode="rgb_array")
-            env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
-        else:
-            env = gym.make(env_id)
-        env = gym.wrappers.RecordEpisodeStatistics(env)
-        env.action_space.seed(seed)
 
-        return env
+        if args.alg_name == "DQN":
+            if capture_video and idx == 0:
+                env = gym.make(env_id, render_mode="rgb_array")
+                env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
+            else:
+                env = gym.make(env_id)
+            env = gym.wrappers.RecordEpisodeStatistics(env)
+            env.action_space.seed(seed)
+
+
+        elif args.alg_name == 'PPO':
+            if capture_video and idx == 0:
+                    env = gym.make(env_id, render_mode="rgb_array")
+                    env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
+            else:
+                env = gym.make(env_id)
+            env = gym.wrappers.FlattenObservation(env)  # deal with dm_control's Dict observation space
+            env = gym.wrappers.RecordEpisodeStatistics(env)
+            env = gym.wrappers.ClipAction(env)
+            env = gym.wrappers.NormalizeObservation(env)
+            env = gym.wrappers.TransformObservation(env, lambda obs: np.clip(obs, -10, 10))
+            env = gym.wrappers.NormalizeReward(env, gamma=args.gamma)
+            env = gym.wrappers.TransformReward(env, lambda reward: np.clip(reward, -10, 10))
+
+            return env
 
     return thunk
 
@@ -119,7 +136,7 @@ if __name__ == '__main__':
 
     # env setup
     envs = gym.vector.SyncVectorEnv(
-        [make_env(args.env_id, args.seed + i, i, args.capture_video, run_name) for i in range(args.num_envs)]
+        [make_env(args.env_id, args.seed + i, i, args.capture_video, run_name, args) for i in range(args.num_envs)]
     )
 
     if args.alg_name == "DQN":

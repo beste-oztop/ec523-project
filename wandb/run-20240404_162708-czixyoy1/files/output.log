@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 125, in <module>
+    dqn_agent = DQN(envs, writer, args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/DQN.py", line 42, in __init__
+    self.target_network.load_state_dict(self.q_network.state_dict(), strict=False)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/torch/nn/modules/module.py", line 2153, in load_state_dict
+    raise RuntimeError('Error(s) in loading state_dict for {}:\n\t{}'.format(
+RuntimeError: Error(s) in loading state_dict for QNetwork:
+	size mismatch for network.4.weight: copying a param with shape torch.Size([84, 84]) from checkpoint, the shape in current model is torch.Size([3, 84]).
+	size mismatch for network.4.bias: copying a param with shape torch.Size([84]) from checkpoint, the shape in current model is torch.Size([3]).

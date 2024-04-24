@@ -91,22 +91,22 @@ class PPONetwork(nn.Module):
     def __init__(self, envs):
         super().__init__()
         self.critic = nn.Sequential(
-            self.initalize_layer(nn.Linear(np.array(envs.single_observation_space.shape).prod(), 64)),
+            self.initialize_layer(nn.Linear(np.array(envs.single_observation_space.shape).prod(), 64)),
             nn.Tanh(),
-            self.initalize_layer(nn.Linear(64, 64)),
+            self.initialize_layer(nn.Linear(64, 64)),
             nn.Tanh(),
-            self.initalize_layer(nn.Linear(64, 1), std=1.0),
+            self.initialize_layer(nn.Linear(64, 1), std=1.0),
         )
         self.actor_mean = nn.Sequential(
-            self.initalize_layer(nn.Linear(np.array(envs.single_observation_space.shape).prod(), 64)),
+            self.initialize_layer(nn.Linear(np.array(envs.single_observation_space.shape).prod(), 64)),
             nn.Tanh(),
-            self.initalize_layer(nn.Linear(64, 64)),
+            self.initialize_layer(nn.Linear(64, 64)),
             nn.Tanh(),
-            self.initalize_layer(nn.Linear(64, np.prod(envs.single_action_space.shape)), std=0.01),
+            self.initialize_layer(nn.Linear(64, np.prod(envs.single_action_space.shape)), std=0.01),
         )
         self.actor_logstd = nn.Parameter(torch.zeros(1, np.prod(envs.single_action_space.shape)))
 
-    def initalize_layer(self, layer, std=np.sqrt(2), bias_const=0.0):
+    def initialize_layer(self, layer, std=np.sqrt(2), bias_const=0.0):
         torch.nn.init.orthogonal_(layer.weight, std)
         torch.nn.init.constant_(layer.bias, bias_const)
         return layer

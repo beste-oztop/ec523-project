@@ -31,7 +31,7 @@ class PPO():
         self.envs = envs
         self.writer = writer
         self.agent = AgentPPO(envs).to(self.device)
-        self.optimizer = optim.Adam(self.q_network.parameters(), lr=args.learning_rate)
+        self.optimizer = optim.Adam(self.agent.parameters(), lr=args.learning_rate)
 
 
         self.start_time = time.time()

@@ -1,0 +1,69 @@
+
+num_iterations: 244
+Moviepy - Building video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713982220/rl-video-episode-0.mp4.
+Moviepy - Writing video /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713982220/rl-video-episode-0.mp4
+Moviepy - Done !
+Moviepy - video ready /Users/aida/PycharmProjects/ec523-project/ec523-project/videos/PPO_Pendulum-v1_default_network_1_1713982220/rl-video-episode-0.mp4
+Traceback (most recent call last):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/main.py", line 185, in <module>
+    ppo_agent.execute(args)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 166, in execute
+    obs, actions, logprobs, rewards, dones, values, next_obs, next_done, next_value, infos = self.environment_interaction(
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/algorithms/PPO.py", line 57, in environment_interaction
+    next_obs, reward, terminations, truncations, infos = self.envs.step(action.cpu().numpy())
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/vector/vector_env.py", line 204, in step
+    return self.step_wait()
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/vector/sync_vector_env.py", line 149, in step_wait
+    ) = env.step(action)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/core.py", line 555, in step
+    observation, reward, terminated, truncated, info = self.env.step(action)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/wrappers/normalize.py", line 143, in step
+    obs, rews, terminateds, truncateds, infos = self.env.step(action)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/core.py", line 522, in step
+    observation, reward, terminated, truncated, info = self.env.step(action)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/wrappers/normalize.py", line 81, in step
+    obs, rews, terminateds, truncateds, infos = self.env.step(action)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/core.py", line 591, in step
+    return self.env.step(self.action(action))
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/wrappers/record_episode_statistics.py", line 94, in step
+    ) = self.env.step(action)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/core.py", line 522, in step
+    observation, reward, terminated, truncated, info = self.env.step(action)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/wrappers/record_video.py", line 191, in step
+    self.close_video_recorder()
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/gymnasium/wrappers/record_video.py", line 204, in close_video_recorder
+    self.video_recorder.close()
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/wandb/integration/gym/__init__.py", line 72, in close
+    wandb.log({key: wandb.Video(getattr(self, path))})
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 420, in wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 371, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 361, in wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 1838, in log
+    self._log(data=data, step=step, commit=commit)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 1602, in _log
+    self._partial_history_callback(data, step, commit)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 1474, in _partial_history_callback
+    self._backend.interface.publish_partial_history(
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/wandb/sdk/interface/interface.py", line 584, in publish_partial_history
+    data = history_dict_to_json(run, data, step=user_step, ignore_copy_err=True)
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/wandb/sdk/data_types/utils.py", line 52, in history_dict_to_json
+    payload[key] = val_to_json(
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/wandb/sdk/data_types/utils.py", line 82, in val_to_json
+    if util.is_pandas_data_frame(val):
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/wandb/util.py", line 452, in is_pandas_data_frame
+    import pandas as pd
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/pandas/__init__.py", line 119, in <module>
+    from pandas.core.computation.api import eval
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/pandas/core/computation/api.py", line 2, in <module>
+    from pandas.core.computation.eval import eval
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/pandas/core/computation/eval.py", line 16, in <module>
+    from pandas.core.computation.expr import (
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/pandas/core/computation/expr.py", line 181, in <module>
+    _all_nodes = frozenset(
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/pandas/core/computation/expr.py", line 181, in <genexpr>
+    _all_nodes = frozenset(
+  File "/Users/aida/PycharmProjects/ec523-project/ec523-project/venv/lib/python3.9/site-packages/pandas/core/computation/expr.py", line 183, in <genexpr>
+    for node in (getattr(ast, name) for name in dir(ast))

@@ -1,0 +1,63 @@
+diff --git a/algorithms/__pycache__/PPO.cpython-39.pyc b/algorithms/__pycache__/PPO.cpython-39.pyc
+index cfc6350..438803c 100644
+Binary files a/algorithms/__pycache__/PPO.cpython-39.pyc and b/algorithms/__pycache__/PPO.cpython-39.pyc differ
+diff --git a/main.py b/main.py
+index 5cec30d..3316f79 100644
+--- a/main.py
++++ b/main.py
+@@ -51,7 +51,7 @@ class Args:
+     """the id of the environment"""
+     total_timesteps: int = 500000
+     """total timesteps of the experiments"""
+-    learning_rate: float = 2.5e-4
++    learning_rate: float = 1e-3
+     """the learning rate of the optimizer"""
+     num_envs: int = 1
+     """the number of parallel game environments"""
+@@ -77,19 +77,10 @@ class Args:
+     """the frequency of training"""
+ 
+     # PPO specific arguments
+-
+-    total_timesteps: int = 1000000
+-    """total timesteps of the experiments"""
+-    learning_rate: float = 3e-4
+-    """the learning rate of the optimizer"""
+-    num_envs: int = 1
+-    """the number of parallel game environments"""
+     num_steps: int = 2048
+     """the number of steps to run in each environment per policy rollout"""
+     anneal_lr: bool = True
+     """Toggle learning rate annealing for policy and value networks"""
+-    gamma: float = 0.99
+-    """the discount factor gamma"""
+     gae_lambda: float = 0.95
+     """the lambda for the general advantage estimation"""
+     num_minibatches: int = 32
+diff --git a/wandb/debug-internal.log b/wandb/debug-internal.log
+index 9569b70..f6f06d0 120000
+--- a/wandb/debug-internal.log
++++ b/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20240424_112723-vrtqigcz/logs/debug-internal.log
+\ No newline at end of file
++run-20240424_141022-58y9sx9y/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/wandb/debug.log b/wandb/debug.log
+index cc7008c..6ab70e1 120000
+--- a/wandb/debug.log
++++ b/wandb/debug.log
+@@ -1 +1 @@
+-run-20240424_112723-vrtqigcz/logs/debug.log
+\ No newline at end of file
++run-20240424_141022-58y9sx9y/logs/debug.log
+\ No newline at end of file
+diff --git a/wandb/latest-run b/wandb/latest-run
+index c0369f9..e470591 120000
+--- a/wandb/latest-run
++++ b/wandb/latest-run
+@@ -1 +1 @@
+-run-20240424_112723-vrtqigcz
+\ No newline at end of file
++run-20240424_141022-58y9sx9y
+\ No newline at end of file

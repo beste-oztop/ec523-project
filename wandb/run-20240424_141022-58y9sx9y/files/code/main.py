@@ -49,7 +49,7 @@ class Args:
     # DQN specific arguments
     env_id: str = "Pendulum-v1"
     """the id of the environment"""
-    total_timesteps: int = 1e7
+    total_timesteps: int = 500000
     """total timesteps of the experiments"""
     learning_rate: float = 1e-3
     """the learning rate of the optimizer"""
@@ -77,7 +77,7 @@ class Args:
     """the frequency of training"""
 
     # PPO specific arguments
-    num_steps: int = 512
+    num_steps: int = 2048
     """the number of steps to run in each environment per policy rollout"""
     anneal_lr: bool = True
     """Toggle learning rate annealing for policy and value networks"""

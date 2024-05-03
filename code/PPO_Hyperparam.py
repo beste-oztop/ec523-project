@@ -257,6 +257,8 @@ if __name__ == "__main__":
         agent = BaseLearner(base_index=i, envs=envs, device=device, args=args).to(device)
         base_learners.append(agent)
 
+
+    # These algorithms were initially implemented by the cited paper in our report.
     # meta learner initiation
     if args.modsel_alg == "BHD3" :
         modsel = BalancingHyperparamDoublingDataDriven(m, dmin = 1)

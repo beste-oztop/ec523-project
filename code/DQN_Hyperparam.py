@@ -87,6 +87,7 @@ class Args:
 
 
 
+# This class was implemented by the paper cited in our report
 class BalancingHyperparamDoublingDataDriven:
     def __init__(self, m, dmin, delta =0.01, 
         c = 1, classic = True, empirical= False ):
